@@ -10,8 +10,5 @@ public interface CartService {
 
     Optional<Cart> getCartById(int cartId);
 
-import com.uade.tpo.ecommerce.entity.Cart;
-
-public interface CartService {
     Cart createCart(String userId, String currency);
 }
