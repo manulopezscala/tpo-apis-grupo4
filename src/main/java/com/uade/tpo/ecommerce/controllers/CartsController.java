@@ -19,6 +19,21 @@ public class CartsController {
     @Autowired
     private CartService cartService;
 
+    @GetMapping
+    public ResponseEntity<ArrayList<Cart>> getCarts() {
+        return ResponseEntity.ok(cartService.getCarts());
+    }
+
+    @GetMapping("/{cartId}")
+    public ResponseEntity<Cart> getCartById(@PathVariable int cartId) {
+        Optional<Cart> result = cartService.getCartById(cartId);
+
+        if (result.isPresent())
+            return ResponseEntity.ok(result.get());
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping
     public ResponseEntity<Cart> createCart(@RequestBody CartRequest cartRequest) {
         Cart cart = cartService.createCart(cartRequest.getUserId(), cartRequest.getCurrency());
