@@ -12,6 +12,9 @@ import lombok.Data;
 @Entity
 public class Category {
 
+    public Category() {
+    }
+
     public Category(String description) {
         this.description = description;
     }
