@@ -1,7 +1,7 @@
 package com.uade.tpo.ecommerce.controllers;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +24,12 @@ public class CartsController {
     private CartService cartService;
 
     @GetMapping
-    public ResponseEntity<ArrayList<Cart>> getCarts() {
+    public ResponseEntity<List<Cart>> getCarts() {
         return ResponseEntity.ok(cartService.getCarts());
     }
 
     @GetMapping("/{cartId}")
-    public ResponseEntity<Cart> getCartById(@PathVariable int cartId) {
+    public ResponseEntity<Cart> getCartById(@PathVariable Long cartId) {
         Optional<Cart> result = cartService.getCartById(cartId);
 
         if (result.isPresent())

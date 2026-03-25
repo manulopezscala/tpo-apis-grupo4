@@ -1,8 +1,9 @@
 package com.uade.tpo.ecommerce.service;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.ecommerce.entity.Cart;
@@ -10,18 +11,15 @@ import com.uade.tpo.ecommerce.repository.CartRepository;
 
 @Service
 public class CartServiceImpl implements CartService {
+    @Autowired
     private CartRepository cartRepository;
 
-    public CartServiceImpl() {
-        this.cartRepository = new CartRepository();
+    public List<Cart> getCarts() {
+        return cartRepository.findAll();
     }
 
-    public ArrayList<Cart> getCarts() {
-        return cartRepository.getCarts();
-    }
-
-    public Optional<Cart> getCartById(int cartId) {
-        return cartRepository.getCartById(cartId);
+    public Optional<Cart> getCartById(Long cartId) {
+        return cartRepository.findById(cartId);
     }
 
     public Cart createCart(String userId, String currency) {
@@ -29,6 +27,7 @@ public class CartServiceImpl implements CartService {
         if (normalizedCurrency == null || normalizedCurrency.isBlank())
             normalizedCurrency = "ARS";
 
-        return cartRepository.createCart(userId, normalizedCurrency);
+        Cart cart = new Cart(userId, normalizedCurrency, "active");
+        return cartRepository.save(cart);
     }
 }

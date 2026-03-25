@@ -1,13 +1,35 @@
 package com.uade.tpo.ecommerce.entity;
 
-import lombok.Builder;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import lombok.Data;
 
 @Data
-@Builder
+@Entity
 public class Cart {
-    private int id;
+    public Cart() {
+    }
+
+    public Cart(String userId, String currency, String status) {
+        this.userId = userId;
+        this.currency = currency;
+        this.status = status;
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column
     private String userId;
+
+    @Column
     private String currency;
+
+    @Column
     private String status;
 }
