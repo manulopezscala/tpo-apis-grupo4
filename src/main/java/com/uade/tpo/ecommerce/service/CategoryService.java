@@ -1,16 +1,16 @@
 package com.uade.tpo.ecommerce.service;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.uade.tpo.ecommerce.entity.Category;
 import com.uade.tpo.ecommerce.exceptions.CategoryDuplicateException;
 
 public interface CategoryService {
-    ArrayList<Category> getCategories();
+    List<Category> getCategories();
 
-    Optional<Category> getCategoryById(int categoryId);
+    Optional<Category> getCategoryById(Long categoryId);
 
-    Category createCategory(int newCategoryId, String description) throws CategoryDuplicateException;
+    Category createCategory(String description) throws CategoryDuplicateException;
 
 }
