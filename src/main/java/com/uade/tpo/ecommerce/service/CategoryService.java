@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
 @Service
 public class CategoryService {
 
@@ -26,7 +27,7 @@ public class CategoryService {
     }
 
     public Category create(Category category) throws CategoryDuplicateException {
-        if (repository.findByDescriptionIgnoreCase(category.getDescription()).isPresent())
+        if (repository.existsByNameIgnoreCase(category.getName()))
             throw new CategoryDuplicateException();
         return repository.save(category);
     }
