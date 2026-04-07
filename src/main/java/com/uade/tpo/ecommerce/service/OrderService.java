@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Order;
+import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class OrderService {
 
     public Order create(Order order) {
         order.setDate(new Date());
-        order.setStatus("CREATED");
+        order.setStatus(OrderStatus.CREATED);
         return repository.save(order);
     }
 }

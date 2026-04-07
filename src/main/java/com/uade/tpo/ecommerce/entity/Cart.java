@@ -1,5 +1,7 @@
 package com.uade.tpo.ecommerce.entity;
 
+import com.uade.tpo.ecommerce.enums.CartStatus;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -13,8 +15,9 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column
-    private String status;
+    private CartStatus status;
 
     @Column
     private String currency;

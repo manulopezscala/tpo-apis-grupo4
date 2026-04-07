@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Cart;
+import com.uade.tpo.ecommerce.enums.CartStatus;
 import com.uade.tpo.ecommerce.repository.CartRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class CartService {
     }
 
     public Cart create(Cart cart) {
-        cart.setStatus("ACTIVE");
+        cart.setStatus(CartStatus.ACTIVE);
         return repository.save(cart);
     }
 

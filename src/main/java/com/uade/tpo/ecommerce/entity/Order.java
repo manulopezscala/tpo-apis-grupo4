@@ -1,5 +1,7 @@
 package com.uade.tpo.ecommerce.entity;
 
+import com.uade.tpo.ecommerce.enums.OrderStatus;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.Date;
@@ -20,8 +22,9 @@ public class Order {
     @Column(nullable = false)
     private Double total;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private OrderStatus status;
 
     // RELACIÓN CON USER
     @ManyToOne
