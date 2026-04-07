@@ -1,14 +1,34 @@
 package com.uade.tpo.ecommerce.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.uade.tpo.ecommerce.entity.Cart;
+import com.uade.tpo.ecommerce.repository.CartRepository;
+import org.springframework.stereotype.Service;
 
-public interface CartService {
-    List<Cart> getCarts();
+import java.util.List;
 
-    Optional<Cart> getCartById(Long cartId);
+@Service
+public class CartService {
 
-    Cart createCart(String userId, String currency);
+    private final CartRepository repository;
+
+    public CartService(CartRepository repository) {
+        this.repository = repository;
+    }
+
+    public List<Cart> getAll() {
+        return repository.findAll();
+    }
+
+    public Cart getById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public Cart create(Cart cart) {
+        cart.setStatus("ACTIVE");
+        return repository.save(cart);
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
 }
