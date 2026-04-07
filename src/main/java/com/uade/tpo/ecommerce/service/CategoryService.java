@@ -1,16 +1,33 @@
 package com.uade.tpo.ecommerce.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.uade.tpo.ecommerce.entity.Category;
-import com.uade.tpo.ecommerce.exceptions.CategoryDuplicateException;
+import com.uade.tpo.ecommerce.repository.CategoryRepository;
+import org.springframework.stereotype.Service;
 
-public interface CategoryService {
-    List<Category> getCategories();
+import java.util.List;
 
-    Optional<Category> getCategoryById(Long categoryId);
+@Service
+public class CategoryService {
 
-    Category createCategory(String description) throws CategoryDuplicateException;
+    private final CategoryRepository repository;
 
+    public CategoryService(CategoryRepository repository) {
+        this.repository = repository;
+    }
+
+    public List<Category> getAll() {
+        return repository.findAll();
+    }
+
+    public Category getById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    public Category create(Category category) {
+        return repository.save(category);
+    }
+
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
 }
