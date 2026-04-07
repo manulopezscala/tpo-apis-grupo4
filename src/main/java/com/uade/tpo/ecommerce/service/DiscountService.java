@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Discount;
+import com.uade.tpo.ecommerce.exceptions.DiscountDuplicateException;
 import com.uade.tpo.ecommerce.repository.DiscountRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,9 @@ public class DiscountService {
         this.repository = repository;
     }
 
-    public Discount create(Discount discount) {
+    public Discount create(Discount discount) throws DiscountDuplicateException {
+        if (discount.getProduct() != null && repository.existsByProductId(discount.getProduct().getId()))
+            throw new DiscountDuplicateException();
         return repository.save(discount);
     }
 }

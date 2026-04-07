@@ -1,6 +1,9 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Cart;
+import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
+import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
+import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
 import com.uade.tpo.ecommerce.service.CartService;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +25,7 @@ public class CartController {
     }
 
     @GetMapping("/{id}")
-    public Cart getById(@PathVariable Long id) {
+    public Cart getById(@PathVariable Long id) throws CartNotFoundException {
         return service.getById(id);
     }
 
@@ -31,8 +34,13 @@ public class CartController {
         return service.create(cart);
     }
 
+    @PostMapping("/{id}/checkout")
+    public Cart checkout(@PathVariable Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException {
+        return service.checkout(id);
+    }
+
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) throws CartNotFoundException {
         service.delete(id);
     }
 }

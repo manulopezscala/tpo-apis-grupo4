@@ -1,6 +1,9 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Order;
+import com.uade.tpo.ecommerce.enums.OrderStatus;
+import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
+import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.service.OrderService;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +25,18 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public Order getById(@PathVariable Long id) {
+    public Order getById(@PathVariable Long id) throws OrderNotFoundException {
         return service.getById(id);
     }
 
     @PostMapping
     public Order create(@RequestBody Order order) {
         return service.create(order);
+    }
+
+    @PatchMapping("/{id}/status")
+    public Order updateStatus(@PathVariable Long id, @RequestParam OrderStatus status)
+            throws OrderNotFoundException, InvalidOrderStatusException {
+        return service.updateStatus(id, status);
     }
 }
