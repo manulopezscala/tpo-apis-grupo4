@@ -4,6 +4,7 @@ import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.exceptions.ProductDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.service.ProductService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Product create(@RequestBody Product product) throws ProductDuplicateException {
         return service.create(product);
     }
@@ -39,6 +41,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) throws ProductNotFoundException {
         service.delete(id);
     }

@@ -4,6 +4,7 @@ import com.uade.tpo.ecommerce.entity.Category;
 import com.uade.tpo.ecommerce.exceptions.CategoryDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.CategoryNotFoundException;
 import com.uade.tpo.ecommerce.service.CategoryService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +30,13 @@ public class CategoryController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Category create(@RequestBody Category category) throws CategoryDuplicateException {
         return service.create(category);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) throws CategoryNotFoundException {
         service.delete(id);
     }

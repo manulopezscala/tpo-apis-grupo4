@@ -4,6 +4,7 @@ import com.uade.tpo.ecommerce.entity.User;
 import com.uade.tpo.ecommerce.exceptions.UserDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
 import com.uade.tpo.ecommerce.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +30,7 @@ public class UserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public User create(@RequestBody User user) throws UserDuplicateException {
         return service.create(user);
     }
@@ -39,6 +41,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) throws UserNotFoundException {
         service.delete(id);
     }

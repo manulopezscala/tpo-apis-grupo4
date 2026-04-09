@@ -2,6 +2,7 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.service.OrderItemService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class OrderItemController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public OrderItem create(@RequestBody OrderItem item) {
         return service.create(item);
     }

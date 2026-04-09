@@ -2,6 +2,7 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.ProductImage;
 import com.uade.tpo.ecommerce.service.ProductImageService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,6 +16,7 @@ public class ProductImageController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ProductImage create(@RequestBody ProductImage image) {
         return service.create(image);
     }

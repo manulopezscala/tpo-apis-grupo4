@@ -5,6 +5,7 @@ import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.service.OrderService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class OrderController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Order create(@RequestBody Order order) {
         return service.create(order);
     }

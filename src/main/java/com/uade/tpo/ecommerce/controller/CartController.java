@@ -5,6 +5,7 @@ import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
 import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
 import com.uade.tpo.ecommerce.service.CartService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class CartController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Cart create(@RequestBody Cart cart) {
         return service.create(cart);
     }
@@ -40,6 +42,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) throws CartNotFoundException {
         service.delete(id);
     }
