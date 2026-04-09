@@ -15,9 +15,15 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    /**
+     * Secreto HMAC utilizado para firmar y verificar los JWT.
+     */
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    /**
+     * Tiempo de expiración del token en milisegundos.
+     */
     @Value("${jwt.expiration-ms}")
     private long jwtExpirationMs;
 

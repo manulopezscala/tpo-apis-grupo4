@@ -19,7 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
+    /**
+     * Manager central de autenticación de Spring Security.
+     */
     private final AuthenticationManager authenticationManager;
+
+    /**
+     * Servicio de emisión y validación de JWT.
+     */
     private final JwtService jwtService;
 
     /**
@@ -30,13 +37,13 @@ public class AuthController {
         this.jwtService = jwtService;
     }
 
-    @PostMapping("/login")
     /**
      * Autentica usuario y contraseña, y retorna un JWT si las credenciales son válidas.
      *
      * @param request credenciales del usuario
      * @return token JWT o 401 si falla la autenticación
      */
+    @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(

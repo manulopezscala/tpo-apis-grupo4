@@ -14,6 +14,9 @@ import java.util.List;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    /**
+     * Repositorio para recuperar usuarios y roles desde la base de datos.
+     */
     private final UserRepository userRepository;
 
     /**
@@ -23,7 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    @Override
     /**
      * Carga un usuario por username y lo adapta al modelo de Spring Security.
      *
@@ -31,6 +33,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @return usuario con credenciales y authorities para el contexto de seguridad
      * @throws UsernameNotFoundException si el usuario no existe en la base de datos
      */
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));

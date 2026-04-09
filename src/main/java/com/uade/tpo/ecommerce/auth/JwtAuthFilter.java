@@ -17,14 +17,27 @@ import java.io.IOException;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    /**
+     * Servicio responsable de parsear y validar JWT.
+     */
     private final JwtService jwtService;
+
+    /**
+     * Servicio de usuarios usado para cargar authorities en el contexto de seguridad.
+     */
     private final UserDetailsService userDetailsService;
 
+    /**
+     * Crea el filtro JWT con sus dependencias.
+     */
     public JwtAuthFilter(JwtService jwtService, UserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * Intercepta requests para validar Bearer token y poblar SecurityContextHolder.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,

@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
     /**
      * Define la cadena principal de filtros de seguridad para la API.
      *
@@ -29,6 +28,7 @@ public class SecurityConfig {
      * @return configuración de seguridad construida
      * @throws Exception si ocurre un error durante la construcción del filtro
      */
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
@@ -51,7 +51,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
     /**
      * Expone el AuthenticationManager para usarlo en el flujo de login.
      *
@@ -59,16 +58,17 @@ public class SecurityConfig {
      * @return manager de autenticación configurado por Spring
      * @throws Exception si no puede resolverse el manager
      */
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
-    @Bean
     /**
      * Configura el encoder de contraseñas usado por la aplicación.
      *
      * @return implementación BCrypt para hash de contraseñas
      */
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
