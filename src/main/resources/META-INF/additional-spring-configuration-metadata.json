@@ -3,12 +3,12 @@
     {
       "name": "jwt.secret",
       "type": "java.lang.String",
-      "description": "HMAC secret used to sign JWT tokens."
+      "description": "Secret key used to sign and validate JWT tokens (HMAC). Keep it private, strong, and environment-specific; do not hardcode it in source code."
     },
     {
       "name": "jwt.expiration-ms",
       "type": "java.lang.Long",
-      "description": "JWT token expiration in milliseconds."
+      "description": "Token validity duration in milliseconds from issuance time. Example: 3600000 = 1 hour."
     }
   ]
 }
