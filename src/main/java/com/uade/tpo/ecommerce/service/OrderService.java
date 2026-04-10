@@ -2,8 +2,11 @@ package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Order;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
+import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
+import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
+import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +17,11 @@ import java.util.List;
 public class OrderService {
 
     private final OrderRepository repository;
+    private final CartRepository cartRepository;
 
-    public OrderService(OrderRepository repository) {
+    public OrderService(OrderRepository repository, CartRepository cartRepository) {
         this.repository = repository;
+        this.cartRepository = cartRepository;
     }
 
     public List<Order> getAll() {
@@ -27,7 +32,20 @@ public class OrderService {
         return repository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
-    public Order create(Order order) {
+    public Order create(Order order) throws CartNotFoundException, CartAlreadyOrderedException {
+        if (order.getCart() == null || order.getCart().getId() == null) {
+            throw new CartNotFoundException();
+        }
+
+        Long cartId = order.getCart().getId();
+        if (!cartRepository.existsById(cartId)) {
+            throw new CartNotFoundException();
+        }
+        if (repository.existsByCartId(cartId)) {
+            throw new CartAlreadyOrderedException();
+        }
+
+        order.setCart(cartRepository.getReferenceById(cartId));
         order.setDate(new Date());
         order.setStatus(OrderStatus.CREATED);
         return repository.save(order);

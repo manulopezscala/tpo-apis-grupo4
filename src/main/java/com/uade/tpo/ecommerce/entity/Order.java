@@ -31,6 +31,11 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // RELACIÓN CON CART
+    @OneToOne
+    @JoinColumn(name = "cart_id", nullable = false, unique = true)
+    private Cart cart;
+
     // RELACIÓN CON ORDER ITEMS
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;

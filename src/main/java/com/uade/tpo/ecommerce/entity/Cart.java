@@ -1,5 +1,6 @@
 package com.uade.tpo.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.uade.tpo.ecommerce.enums.CartStatus;
 
 import jakarta.persistence.*;
@@ -30,4 +31,9 @@ public class Cart {
     // RELACIÓN CON CART ITEMS
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> items;
+
+    // RELACIÓN CON ORDER
+    @JsonIgnore
+    @OneToOne(mappedBy = "cart")
+    private Order order;
 }

@@ -2,6 +2,8 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Order;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
+import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
+import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.service.OrderService;
@@ -32,7 +34,7 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Order create(@RequestBody Order order) {
+    public Order create(@RequestBody Order order) throws CartNotFoundException, CartAlreadyOrderedException {
         return service.create(order);
     }
 
