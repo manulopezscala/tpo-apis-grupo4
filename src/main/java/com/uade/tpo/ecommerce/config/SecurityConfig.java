@@ -31,8 +31,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
+            // Deshabilitamos CSRF ya que nuestra API es sin estado y no usamos cookies para autenticación
             .csrf(AbstractHttpConfigurer::disable)
+            // Configuramos la política de creación de sesiones para que sea sin estado, ya que usaremos JWT para autenticación
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // Definimos las reglas de autorización para los endpoints de la API según los roles de usuario
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/products/**", "/categories/**").hasAnyRole(RoleName.USER.name(), RoleName.ADMIN.name())
@@ -44,10 +47,13 @@ public class SecurityConfig {
                 .requestMatchers("/carts/**", "/cart-items/**", "/orders/**", "/order-items/**").hasAnyRole(RoleName.USER.name(), RoleName.ADMIN.name())
                 .anyRequest().authenticated()
             )
+            // Deshabilitamos autenticación básica y formulario de login, ya que usamos JWT para autenticación sin estado
             .httpBasic(AbstractHttpConfigurer::disable)
             .formLogin(AbstractHttpConfigurer::disable)
+            // Agregamos el filtro de autenticación JWT antes del filtro de autenticación por nombre de usuario y contraseña
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
+        // Finalmente, construimos y retornamos la configuración de seguridad
         return http.build();
     }
 
