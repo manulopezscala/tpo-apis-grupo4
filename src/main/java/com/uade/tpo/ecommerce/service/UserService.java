@@ -1,8 +1,12 @@
 package com.uade.tpo.ecommerce.service;
 
+import com.uade.tpo.ecommerce.entity.Role;
 import com.uade.tpo.ecommerce.entity.User;
+import com.uade.tpo.ecommerce.entity.dto.UserRequest;
+import com.uade.tpo.ecommerce.enums.RoleName;
 import com.uade.tpo.ecommerce.exceptions.UserDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
+import com.uade.tpo.ecommerce.repository.RoleRepository;
 import com.uade.tpo.ecommerce.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,10 +17,12 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository repository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -28,22 +34,40 @@ public class UserService {
         return repository.findById(id).orElseThrow(UserNotFoundException::new);
     }
 
-    public User create(User user) throws UserDuplicateException {
-        if (repository.existsByUsername(user.getUsername()) || repository.existsByEmail(user.getEmail()))
+    public User create(UserRequest request) throws UserDuplicateException {
+        if (repository.existsByUsername(request.username()) || repository.existsByEmail(request.email()))
             throw new UserDuplicateException();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        Role role = roleRepository.findByName(RoleName.valueOf(request.role().toUpperCase()))
+            .orElseThrow(() -> new IllegalArgumentException("Role no encontrado: " + request.role()));
+
+        User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
+        user.setRole(role);
         return repository.save(user);
     }
 
-    public User update(Long id, User user) throws UserNotFoundException {
+    public User update(Long id, UserRequest request) throws UserNotFoundException {
         User existing = repository.findById(id).orElseThrow(UserNotFoundException::new);
-        if (user.getPassword() == null || user.getPassword().isBlank()) {
-            user.setPassword(existing.getPassword());
+
+        Role role = roleRepository.findByName(RoleName.valueOf(request.role().toUpperCase()))
+            .orElseThrow(() -> new IllegalArgumentException("Role no encontrado: " + request.role()));
+
+        existing.setUsername(request.username());
+        existing.setEmail(request.email());
+        if (request.password() == null || request.password().isBlank()) {
+            // conservar contraseña actual
         } else {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            existing.setPassword(passwordEncoder.encode(request.password()));
         }
-        user.setId(id);
-        return repository.save(user);
+        existing.setFirstName(request.firstName());
+        existing.setLastName(request.lastName());
+        existing.setRole(role);
+        return repository.save(existing);
     }
 
     public void delete(Long id) throws UserNotFoundException {

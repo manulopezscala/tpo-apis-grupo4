@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Product;
+import com.uade.tpo.ecommerce.entity.dto.ProductRequest;
 import com.uade.tpo.ecommerce.exceptions.ProductDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.service.ProductService;
@@ -31,13 +32,13 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Product create(@RequestBody Product product) throws ProductDuplicateException {
-        return service.create(product);
+    public Product create(@RequestBody ProductRequest request) throws ProductDuplicateException {
+        return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public Product update(@PathVariable Long id, @RequestBody Product product) throws ProductNotFoundException {
-        return service.update(id, product);
+    public Product update(@PathVariable Long id, @RequestBody ProductRequest request) throws ProductNotFoundException {
+        return service.update(id, request);
     }
 
     @DeleteMapping("/{id}")
