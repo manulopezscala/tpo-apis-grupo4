@@ -98,7 +98,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-                "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"role\": \"ADMIN\"\n}",
+              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\",\n  \"role\": {\n    \"id\": 1\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -106,7 +106,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["users"]
             },
-              "description": "Crea un nuevo usuario. El campo `role` acepta 'ADMIN' o 'USER'."
+            "description": "Crea un nuevo usuario. El campo `role.id` debe apuntar a un Role existente (1=ADMIN, 2=USER según las filas en DB)."
           }
         },
         {
@@ -116,7 +116,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-                "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"nuevoPassword123\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"Actualizado\",\n  \"role\": \"ADMIN\"\n}",
+              "raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"nuevoPassword123\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"Actualizado\",\n  \"role\": {\n    \"id\": 1\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -226,7 +226,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-                "raw": "{\n  \"name\": \"Notebook Lenovo\",\n  \"description\": \"Notebook 15 pulgadas, 16GB RAM, 512GB SSD\",\n  \"price\": 1500.00,\n  \"stock\": 10,\n  \"active\": true,\n  \"sellerUsername\": \"admin\",\n  \"categoryName\": \"Electrónica\"\n}",
+              "raw": "{\n  \"name\": \"Notebook Lenovo\",\n  \"description\": \"Notebook 15 pulgadas, 16GB RAM, 512GB SSD\",\n  \"price\": 1500.00,\n  \"stock\": 10,\n  \"active\": true,\n  \"seller\": {\n    \"id\": 1\n  },\n  \"category\": {\n    \"id\": 1\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
@@ -243,7 +243,7 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-                "raw": "{\n  \"name\": \"Notebook Lenovo Pro\",\n  \"description\": \"Notebook 15 pulgadas, 32GB RAM, 1TB SSD\",\n  \"price\": 2000.00,\n  \"stock\": 5,\n  \"active\": true,\n  \"sellerUsername\": \"admin\",\n  \"categoryName\": \"Electrónica\"\n}",
+              "raw": "{\n  \"name\": \"Notebook Lenovo Pro\",\n  \"description\": \"Notebook 15 pulgadas, 32GB RAM, 1TB SSD\",\n  \"price\": 2000.00,\n  \"stock\": 5,\n  \"active\": true,\n  \"seller\": {\n    \"id\": 1\n  },\n  \"category\": {\n    \"id\": 1\n  }\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {
