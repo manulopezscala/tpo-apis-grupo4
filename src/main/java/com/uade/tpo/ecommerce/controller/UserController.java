@@ -1,7 +1,6 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.User;
-import com.uade.tpo.ecommerce.entity.dto.UserRequest;
 import com.uade.tpo.ecommerce.exceptions.UserDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
 import com.uade.tpo.ecommerce.service.UserService;
@@ -32,13 +31,13 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User create(@RequestBody UserRequest request) throws UserDuplicateException {
-        return service.create(request);
+    public User create(@RequestBody User user) throws UserDuplicateException {
+        return service.create(user);
     }
 
     @PutMapping("/{id}")
-    public User update(@PathVariable Long id, @RequestBody UserRequest request) throws UserNotFoundException {
-        return service.update(id, request);
+    public User update(@PathVariable Long id, @RequestBody User user) throws UserNotFoundException {
+        return service.update(id, user);
     }
 
     @DeleteMapping("/{id}")
