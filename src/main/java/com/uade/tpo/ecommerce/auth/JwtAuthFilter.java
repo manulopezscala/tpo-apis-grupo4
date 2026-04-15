@@ -65,21 +65,25 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // Si el username es válido y no hay una autenticación ya presente en el contexto, validamos el token.
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Cargamos los detalles del usuario para validar el token y poblar authorities.
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            try {
+                // Cargamos los detalles del usuario para validar el token y poblar authorities.
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            // Si el token es válido, creamos un objeto de autenticación y lo seteamos en el contexto de seguridad.
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                // Creamos un token de autenticación con los detalles del usuario y sus authorities.
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-                );
-                // Seteamos detalles adicionales de la request (como IP, session ID, etc.) en el token de autenticación.
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                // Finalmente, seteamos el token de autenticación en el contexto de seguridad para que esté disponible en toda la request.
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                // Si el token es válido, creamos un objeto de autenticación y lo seteamos en el contexto de seguridad.
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // Creamos un token de autenticación con los detalles del usuario y sus authorities.
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                    );
+                    // Seteamos detalles adicionales de la request (como IP, session ID, etc.) en el token de autenticación.
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // Finalmente, seteamos el token de autenticación en el contexto de seguridad para que esté disponible en toda la request.
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception ex) {
+                SecurityContextHolder.clearContext();
             }
         }
 

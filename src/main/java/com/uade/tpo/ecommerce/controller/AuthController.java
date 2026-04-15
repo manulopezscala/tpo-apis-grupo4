@@ -3,10 +3,8 @@ package com.uade.tpo.ecommerce.controller;
 import com.uade.tpo.ecommerce.entity.dto.AuthRequest;
 import com.uade.tpo.ecommerce.entity.dto.AuthResponse;
 import com.uade.tpo.ecommerce.auth.JwtService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,16 +43,12 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.username(), request.password())
-            );
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.username(), request.password())
+        );
 
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            String token = jwtService.generateToken(userDetails);
-            return ResponseEntity.ok(new AuthResponse(token));
-        } catch (BadCredentialsException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String token = jwtService.generateToken(userDetails);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

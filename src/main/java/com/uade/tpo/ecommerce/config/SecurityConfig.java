@@ -2,9 +2,11 @@ package com.uade.tpo.ecommerce.config;
 
 import com.uade.tpo.ecommerce.auth.JwtAuthFilter;
 import com.uade.tpo.ecommerce.enums.RoleName;
+import com.uade.tpo.ecommerce.exceptions.ErrorResponseWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -29,12 +31,20 @@ public class SecurityConfig {
      * @throws Exception si ocurre un error durante la construcción del filtro
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthFilter jwtAuthFilter,
+                                                   ErrorResponseWriter errorResponseWriter) throws Exception {
         http
             // Deshabilitamos CSRF ya que nuestra API es sin estado y no usamos cookies para autenticación
             .csrf(AbstractHttpConfigurer::disable)
             // Configuramos la política de creación de sesiones para que sea sin estado, ya que usaremos JWT para autenticación
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) ->
+                    errorResponseWriter.write(response, HttpStatus.UNAUTHORIZED, "No autorizado"))
+                .accessDeniedHandler((request, response, accessDeniedException) ->
+                    errorResponseWriter.write(response, HttpStatus.FORBIDDEN, "No tiene permisos para realizar esta acción"))
+            )
             // Definimos las reglas de autorización para los endpoints de la API según los roles de usuario
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/login").permitAll()
