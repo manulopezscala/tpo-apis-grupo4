@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ * Servicio para operaciones de negocio sobre órdenes de compra.
+ * Incluye creación, consulta y actualización de estado.
+ */
 @Service
 public class OrderService {
 
@@ -23,21 +28,45 @@ public class OrderService {
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Constructor con inyección de dependencias.
+     * @param repository repositorio de órdenes
+     * @param cartRepository repositorio de carritos
+     * @param userRepository repositorio de usuarios
+     */
     public OrderService(OrderRepository repository, CartRepository cartRepository, UserRepository userRepository) {
         this.repository = repository;
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Obtiene todas las órdenes.
+     * @return lista de órdenes
+     */
     public List<Order> getAll() {
         return repository.findAll();
     }
 
+    /**
+     * Busca una orden por su ID.
+     * @param id identificador de la orden
+     * @return la orden encontrada
+     * @throws OrderNotFoundException si no existe la orden
+     */
     public Order getById(Long id) throws OrderNotFoundException {
         return repository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
-    public Order create(Order order)
+        /**
+         * Crea una nueva orden a partir de un carrito y usuario existentes.
+         * @param order datos de la orden
+         * @return la orden creada
+         * @throws CartNotFoundException si el carrito no existe
+         * @throws CartAlreadyOrderedException si el carrito ya tiene una orden
+         * @throws UserNotFoundException si el usuario no existe
+         */
+        public Order create(Order order)
             throws CartNotFoundException, CartAlreadyOrderedException, UserNotFoundException {
         if (order.getCart() == null || order.getCart().getId() == null) {
             throw new CartNotFoundException();
@@ -61,6 +90,14 @@ public class OrderService {
         return repository.save(order);
     }
 
+    /**
+     * Actualiza el estado de una orden, validando la transición.
+     * @param id identificador de la orden
+     * @param newStatus nuevo estado a asignar
+     * @return la orden actualizada
+     * @throws OrderNotFoundException si la orden no existe
+     * @throws InvalidOrderStatusException si la transición no es válida
+     */
     public Order updateStatus(Long id, OrderStatus newStatus) throws OrderNotFoundException, InvalidOrderStatusException {
         Order order = getById(id);
         if (!isValidTransition(order.getStatus(), newStatus)) {
@@ -71,6 +108,12 @@ public class OrderService {
         return repository.save(order);
     }
 
+    /**
+     * Verifica si la transición de estado es válida según las reglas de negocio.
+     * @param current estado actual
+     * @param next estado siguiente
+     * @return true si la transición es válida, false si no
+     */
     private boolean isValidTransition(OrderStatus current, OrderStatus next) {
         return switch (current) {
             case CREATED -> next == OrderStatus.PENDING || next == OrderStatus.CANCELLED;
@@ -81,6 +124,11 @@ public class OrderService {
         };
     }
 
+    /**
+     * Devuelve un mensaje con los siguientes estados permitidos para una orden.
+     * @param current estado actual
+     * @return texto con los estados válidos siguientes
+     */
     private String nextAllowedStatusMessage(OrderStatus current) {
         return switch (current) {
             case CREATED -> "PENDING o CANCELLED";

@@ -14,6 +14,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
+/**
+ * Servicio para operaciones de negocio sobre productos.
+ * Permite crear, consultar, actualizar y eliminar productos.
+ */
 @Service
 public class ProductService {
 
@@ -21,6 +26,12 @@ public class ProductService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
 
+    /**
+     * Constructor con inyección de dependencias.
+     * @param repository repositorio de productos
+     * @param userRepository repositorio de usuarios
+     * @param categoryRepository repositorio de categorías
+     */
     public ProductService(ProductRepository repository,
                           UserRepository userRepository,
                           CategoryRepository categoryRepository) {
@@ -29,15 +40,33 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
     }
 
+    /**
+     * Obtiene todos los productos.
+     * @return lista de productos
+     */
     public List<Product> getAll() {
         return repository.findAll();
     }
 
+    /**
+     * Busca un producto por su ID.
+     * @param id identificador del producto
+     * @return el producto encontrado
+     * @throws ProductNotFoundException si no existe el producto
+     */
     public Product getById(Long id) throws ProductNotFoundException {
         return repository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
 
-    public Product create(Product product)
+        /**
+         * Crea un nuevo producto, validando unicidad y relaciones.
+         * @param product datos del producto
+         * @return el producto creado
+         * @throws ProductDuplicateException si ya existe un producto con ese nombre
+         * @throws UserNotFoundException si el vendedor no existe
+         * @throws CategoryNotFoundException si la categoría no existe
+         */
+        public Product create(Product product)
             throws ProductDuplicateException, UserNotFoundException, CategoryNotFoundException {
         if (repository.existsByNameIgnoreCase(product.getName()))
             throw new ProductDuplicateException();
@@ -56,7 +85,16 @@ public class ProductService {
         return repository.save(product);
     }
 
-    public Product update(Long id, Product product)
+        /**
+         * Actualiza un producto existente.
+         * @param id identificador del producto
+         * @param product datos actualizados
+         * @return el producto actualizado
+         * @throws ProductNotFoundException si el producto no existe
+         * @throws UserNotFoundException si el vendedor no existe
+         * @throws CategoryNotFoundException si la categoría no existe
+         */
+        public Product update(Long id, Product product)
             throws ProductNotFoundException, UserNotFoundException, CategoryNotFoundException {
         if (!repository.existsById(id)) throw new ProductNotFoundException();
 
@@ -75,6 +113,11 @@ public class ProductService {
         return repository.save(product);
     }
 
+    /**
+     * Elimina un producto por su ID.
+     * @param id identificador del producto
+     * @throws ProductNotFoundException si el producto no existe
+     */
     public void delete(Long id) throws ProductNotFoundException {
         if (!repository.existsById(id)) throw new ProductNotFoundException();
         repository.deleteById(id);
