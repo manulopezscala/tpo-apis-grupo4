@@ -63,7 +63,10 @@ public class OrderService {
 
     public Order updateStatus(Long id, OrderStatus newStatus) throws OrderNotFoundException, InvalidOrderStatusException {
         Order order = getById(id);
-        if (!isValidTransition(order.getStatus(), newStatus)) throw new InvalidOrderStatusException();
+        if (!isValidTransition(order.getStatus(), newStatus)) {
+            String nextAllowed = nextAllowedStatusMessage(order.getStatus());
+            throw new InvalidOrderStatusException("La transición de estado de la orden no es válida. El siguiente estado permitido es: " + nextAllowed);
+        }
         order.setStatus(newStatus);
         return repository.save(order);
     }
@@ -75,6 +78,16 @@ public class OrderService {
             case CONFIRMED -> next == OrderStatus.SHIPPED;
             case SHIPPED -> next == OrderStatus.DELIVERED;
             default -> false;
+        };
+    }
+
+    private String nextAllowedStatusMessage(OrderStatus current) {
+        return switch (current) {
+            case CREATED -> "PENDING o CANCELLED";
+            case PENDING -> "CONFIRMED o CANCELLED";
+            case CONFIRMED -> "SHIPPED";
+            case SHIPPED -> "DELIVERED";
+            default -> "-";
         };
     }
 }
