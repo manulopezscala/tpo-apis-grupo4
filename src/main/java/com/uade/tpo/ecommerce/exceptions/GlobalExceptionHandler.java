@@ -15,9 +15,20 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+/**
+ * Maneja de forma centralizada las excepciones de la API y devuelve
+ * respuestas de error consistentes para el cliente.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Agrupa errores de entrada del cliente y responde con HTTP 400.
+     *
+     * @param ex excepción capturada durante el binding o la validación de la request
+     * @param request request HTTP actual
+     * @return cuerpo de error normalizado con estado 400
+     */
     @ExceptionHandler({
         MethodArgumentTypeMismatchException.class,
         MissingPathVariableException.class,
@@ -55,16 +66,37 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Maneja credenciales inválidas al autenticar.
+     *
+     * @param ex excepción de credenciales inválidas
+     * @param request request HTTP actual
+     * @return cuerpo de error con estado 401
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         return buildError(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas", request.getRequestURI());
     }
 
+    /**
+     * Maneja errores de autenticación no cubiertos por casos más específicos.
+     *
+     * @param ex excepción de autenticación
+     * @param request request HTTP actual
+     * @return cuerpo de error con estado 401
+     */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex, HttpServletRequest request) {
         return buildError(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Maneja excepciones de aplicación y respeta @ResponseStatus cuando esté presente.
+     *
+     * @param ex excepción no controlada por handlers más específicos
+     * @param request request HTTP actual
+     * @return cuerpo de error con estado definido por @ResponseStatus o 500
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleApplicationException(Exception ex, HttpServletRequest request) {
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(), ResponseStatus.class);
@@ -75,13 +107,38 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Fallback para errores de runtime no interceptados por otros handlers.
+     *
+     * @param ex excepción de runtime
+     * @param request request HTTP actual
+     * @return cuerpo de error con estado 500
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeError(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
+    /**
+     * Construye el payload estándar de error utilizado por la API.
+     *
+     * @param status código HTTP a devolver
+     * @param message mensaje de error para el cliente
+     * @param path ruta solicitada donde ocurrió el error
+     * @return respuesta HTTP con el cuerpo de error normalizado
+     */
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String message, String path) {
-        ErrorResponse body = new ErrorResponse(true, (message == null || message.isBlank()) ? "Unexpected error" : message);
+        ErrorResponse body = new ErrorResponse(true, defaultMessage(message));
         return ResponseEntity.status(status).body(body);
+    }
+
+    /**
+     * Devuelve un mensaje por defecto cuando no se recibió uno válido.
+     *
+     * @param message mensaje recibido
+     * @return mensaje original o "Unexpected error" si está vacío
+     */
+    private String defaultMessage(String message) {
+        return (message == null || message.isBlank()) ? "Unexpected error" : message;
     }
 }
