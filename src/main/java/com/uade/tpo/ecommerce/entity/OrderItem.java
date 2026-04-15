@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
@@ -24,6 +25,7 @@ public class OrderItem {
     // RELACIÓN CON ORDER
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Order order;
 
     // RELACIÓN CON PRODUCT
