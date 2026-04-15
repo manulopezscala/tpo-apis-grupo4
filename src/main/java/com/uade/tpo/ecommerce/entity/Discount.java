@@ -1,6 +1,6 @@
 package com.uade.tpo.ecommerce.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,7 +20,8 @@ public class Discount {
     private Boolean active;
 
     // RELACIÓN CON PRODUCT
-    @JsonIgnore
+    // Usamos WRITE_ONLY para aceptar product en el request pero no devolverlo en el response (evita bucles JSON)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToOne
     @JoinColumn(name = "product_id", unique = true)
     private Product product;
