@@ -2,7 +2,9 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.CartItem;
 import com.uade.tpo.ecommerce.exceptions.CartItemNotFoundException;
+import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InsufficientStockException;
+import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.service.CartItemService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +21,8 @@ public class CartItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CartItem create(@RequestBody CartItem item) throws InsufficientStockException {
+    public CartItem create(@RequestBody CartItem item)
+            throws InsufficientStockException, CartNotFoundException, ProductNotFoundException {
         return service.create(item);
     }
 

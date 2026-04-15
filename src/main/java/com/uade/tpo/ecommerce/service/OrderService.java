@@ -1,13 +1,16 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Order;
+import com.uade.tpo.ecommerce.entity.User;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
+import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
 import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
+import com.uade.tpo.ecommerce.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -18,10 +21,12 @@ public class OrderService {
 
     private final OrderRepository repository;
     private final CartRepository cartRepository;
+    private final UserRepository userRepository;
 
-    public OrderService(OrderRepository repository, CartRepository cartRepository) {
+    public OrderService(OrderRepository repository, CartRepository cartRepository, UserRepository userRepository) {
         this.repository = repository;
         this.cartRepository = cartRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Order> getAll() {
@@ -32,7 +37,8 @@ public class OrderService {
         return repository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
-    public Order create(Order order) throws CartNotFoundException, CartAlreadyOrderedException {
+    public Order create(Order order)
+            throws CartNotFoundException, CartAlreadyOrderedException, UserNotFoundException {
         if (order.getCart() == null || order.getCart().getId() == null) {
             throw new CartNotFoundException();
         }
@@ -46,6 +52,10 @@ public class OrderService {
         }
 
         order.setCart(cartRepository.getReferenceById(cartId));
+        if (order.getUser() != null && order.getUser().getId() != null) {
+            User user = userRepository.findById(order.getUser().getId()).orElseThrow(UserNotFoundException::new);
+            order.setUser(user);
+        }
         order.setDate(new Date());
         order.setStatus(OrderStatus.CREATED);
         return repository.save(order);

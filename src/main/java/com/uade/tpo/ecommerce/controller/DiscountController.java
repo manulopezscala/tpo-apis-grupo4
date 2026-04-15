@@ -2,6 +2,7 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Discount;
 import com.uade.tpo.ecommerce.exceptions.DiscountDuplicateException;
+import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.service.DiscountService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class DiscountController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Discount create(@RequestBody Discount discount) throws DiscountDuplicateException {
+    public Discount create(@RequestBody Discount discount) throws DiscountDuplicateException, ProductNotFoundException {
         return service.create(discount);
     }
 }
