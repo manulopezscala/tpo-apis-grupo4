@@ -2,11 +2,14 @@ package com.uade.tpo.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "users")
+// Evita problemas de serialización con proxies de Hibernate.
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id

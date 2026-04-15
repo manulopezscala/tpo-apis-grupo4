@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.entity;
 
 import com.uade.tpo.ecommerce.enums.OrderStatus;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,6 +11,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "orders")
+// Evita problemas de serialización con proxies de Hibernate.
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Order {
 
     @Id
