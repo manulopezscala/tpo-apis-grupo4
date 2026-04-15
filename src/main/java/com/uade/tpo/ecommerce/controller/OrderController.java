@@ -46,8 +46,13 @@ public class OrderController {
     public Order updateStatus(@PathVariable Long id, @RequestBody OrderStatusUpdateRequest request)
             throws OrderNotFoundException, InvalidOrderStatusException {
         OrderStatus newStatus;
+        String statusStr = request.getStatus();
+        if (statusStr == null || statusStr.isBlank()) {
+            String allowed = String.join(", ", stream(OrderStatus.values()).map(Enum::name).toList());
+            throw new InvalidOrderStatusException("El campo 'status' es obligatorio. Los valores permitidos son: " + allowed);
+        }
         try {
-            newStatus = OrderStatus.valueOf(request.getStatus());
+            newStatus = OrderStatus.valueOf(statusStr);
         } catch (Exception e) {
             String allowed = String.join(", ", stream(OrderStatus.values()).map(Enum::name).toList());
             throw new InvalidOrderStatusException("El status enviado no es válido. Los valores permitidos son: " + allowed);
