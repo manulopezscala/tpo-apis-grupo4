@@ -483,20 +483,19 @@
           "name": "Actualizar estado de orden",
           "request": {
             "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"CONFIRMED\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
             "url": {
-              "raw": "{{baseUrl}}/orders/:id/status?status=SHIPPED",
+              "raw": "{{baseUrl}}/orders/:id/status",
               "host": ["{{baseUrl}}"],
               "path": ["orders", ":id", "status"],
-              "variable": [{ "key": "id", "value": "1" }],
-              "query": [
-                {
-                  "key": "status",
-                  "value": "SHIPPED",
-                  "description": "Valores posibles: PENDING, SHIPPED, DELIVERED, CANCELLED"
-                }
-              ]
+              "variable": [{ "key": "id", "value": "1" }]
             },
-            "description": "Solo ADMIN puede cambiar el estado. Valores: PENDING, SHIPPED, DELIVERED, CANCELLED"
+            "description": "Solo ADMIN puede cambiar el estado. Enviar en el body: { \"status\": \"CONFIRMED\" }. Valores posibles: CREATED, PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
           }
         }
       ]
