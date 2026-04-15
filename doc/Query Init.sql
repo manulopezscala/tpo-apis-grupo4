@@ -6,6 +6,12 @@ WHERE NOT EXISTS (
     SELECT 1 FROM roles WHERE name = 'ADMIN'
 );
 
+INSERT INTO roles (name)
+SELECT 'USER'
+WHERE NOT EXISTS (
+    SELECT 1 FROM roles WHERE name = 'USER'
+);
+
 INSERT INTO users (username, email, password, first_name, last_name, role_id)
 VALUES (
     'admin',
