@@ -1,5 +1,6 @@
 package com.uade.tpo.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "products")
+@JsonIgnoreProperties({"orderItems", "cartItems"})
 public class Product {
 
     @Id

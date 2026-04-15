@@ -1,5 +1,6 @@
 package com.uade.tpo.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,6 +20,7 @@ public class Discount {
     private Boolean active;
 
     // RELACIÓN CON PRODUCT
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "product_id", unique = true)
     private Product product;
