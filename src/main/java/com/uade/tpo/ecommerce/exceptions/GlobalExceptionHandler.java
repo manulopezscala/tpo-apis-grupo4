@@ -120,6 +120,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Maneja errores de status inválido en ordenes y muestra mensaje personalizado.
+     *
+     * @param ex excepción de status inválido en orden
+     * @param request request HTTP actual
+     * @return cuerpo de error con estado 400 y mensaje específico sobre el status inválido
+     */
+    @ExceptionHandler(InvalidOrderStatusException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOrderStatus(InvalidOrderStatusException ex, HttpServletRequest request) {
+        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
+    }
+
+    /**
      * Construye el payload estándar de error utilizado por la API.
      *
      * @param status código HTTP a devolver

@@ -2,6 +2,7 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Order;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
+import com.uade.tpo.ecommerce.entity.dto.OrderStatusUpdateRequest;
 import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import static java.util.Arrays.stream;
 
 @RestController
 @RequestMapping("/orders")
@@ -41,8 +43,15 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/status")
-    public Order updateStatus(@PathVariable Long id, @RequestParam OrderStatus status)
+    public Order updateStatus(@PathVariable Long id, @RequestBody OrderStatusUpdateRequest request)
             throws OrderNotFoundException, InvalidOrderStatusException {
-        return service.updateStatus(id, status);
+        OrderStatus newStatus;
+        try {
+            newStatus = OrderStatus.valueOf(request.getStatus());
+        } catch (Exception e) {
+            String allowed = String.join(", ", stream(OrderStatus.values()).map(Enum::name).toList());
+            throw new InvalidOrderStatusException("El status enviado no es válido. Los valores permitidos son: " + allowed);
+        }
+        return service.updateStatus(id, newStatus);
     }
 }
