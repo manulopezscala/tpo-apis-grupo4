@@ -1,14 +1,3 @@
-    /**
-     * Maneja errores de status inválido en ordenes y muestra mensaje personalizado.
-     *
-     * @param ex excepción de status inválido en orden
-     * @param request request HTTP actual
-     * @return cuerpo de error con estado 400 y mensaje específico sobre el status inválido
-     */
-    @ExceptionHandler(InvalidOrderStatusException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidOrderStatus(InvalidOrderStatusException ex, HttpServletRequest request) {
-        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
-    }
 package com.uade.tpo.ecommerce.exceptions;
 
 import com.uade.tpo.ecommerce.entity.dto.ErrorResponse;
