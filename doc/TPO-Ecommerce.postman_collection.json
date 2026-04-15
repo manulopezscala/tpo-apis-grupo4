@@ -69,6 +69,18 @@
       "name": "Users",
       "item": [
         {
+          "name": "Obtener roles disponibles",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "roles"]
+            },
+            "description": "Devuelve los roles disponibles (USER, ADMIN) para usar al crear un usuario."
+          }
+        },
+        {
           "name": "Obtener todos los usuarios",
           "request": {
             "method": "GET",
@@ -84,9 +96,10 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/users/1",
+              "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["users", "1"]
+              "path": ["users", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -120,9 +133,10 @@
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "{{baseUrl}}/users/1",
+              "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["users", "1"]
+              "path": ["users", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -131,9 +145,10 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/users/1",
+              "raw": "{{baseUrl}}/users/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["users", "1"]
+              "path": ["users", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         }
@@ -158,9 +173,10 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/categories/1",
+              "raw": "{{baseUrl}}/categories/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["categories", "1"]
+              "path": ["categories", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -186,9 +202,10 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/categories/1",
+              "raw": "{{baseUrl}}/categories/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["categories", "1"]
+              "path": ["categories", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         }
@@ -213,9 +230,10 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/products/1",
+              "raw": "{{baseUrl}}/products/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["products", "1"]
+              "path": ["products", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -247,9 +265,10 @@
               "options": { "raw": { "language": "json" } }
             },
             "url": {
-              "raw": "{{baseUrl}}/products/1",
+              "raw": "{{baseUrl}}/products/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["products", "1"]
+              "path": ["products", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -258,9 +277,10 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/products/1",
+              "raw": "{{baseUrl}}/products/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["products", "1"]
+              "path": ["products", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         }
@@ -330,9 +350,10 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/carts/1",
+              "raw": "{{baseUrl}}/carts/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["carts", "1"]
+              "path": ["carts", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -358,9 +379,10 @@
           "request": {
             "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/carts/1/checkout",
+              "raw": "{{baseUrl}}/carts/:id/checkout",
               "host": ["{{baseUrl}}"],
-              "path": ["carts", "1", "checkout"]
+              "path": ["carts", ":id", "checkout"],
+              "variable": [{ "key": "id", "value": "1" }]
             },
             "description": "Cierra el carrito para generar una orden. El carrito debe tener al menos un item."
           }
@@ -370,9 +392,10 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/carts/1",
+              "raw": "{{baseUrl}}/carts/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["carts", "1"]
+              "path": ["carts", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         }
@@ -403,9 +426,10 @@
           "request": {
             "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/cart-items/1",
+              "raw": "{{baseUrl}}/cart-items/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["cart-items", "1"]
+              "path": ["cart-items", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         }
@@ -430,9 +454,10 @@
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/orders/1",
+              "raw": "{{baseUrl}}/orders/:id",
               "host": ["{{baseUrl}}"],
-              "path": ["orders", "1"]
+              "path": ["orders", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
             }
           }
         },
@@ -459,9 +484,10 @@
           "request": {
             "method": "PATCH",
             "url": {
-              "raw": "{{baseUrl}}/orders/1/status?status=SHIPPED",
+              "raw": "{{baseUrl}}/orders/:id/status?status=SHIPPED",
               "host": ["{{baseUrl}}"],
-              "path": ["orders", "1", "status"],
+              "path": ["orders", ":id", "status"],
+              "variable": [{ "key": "id", "value": "1" }],
               "query": [
                 {
                   "key": "status",
@@ -499,3 +525,4 @@
     }
   ]
 }
+
