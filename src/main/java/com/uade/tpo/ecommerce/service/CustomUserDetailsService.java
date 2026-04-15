@@ -35,9 +35,11 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Busca el usuario por username. Si no se encuentra, lanza una excepción que Spring Security manejará.
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 
+        // Si el usuario no tiene un rol asignado, se le asigna el rol USER por defecto
         RoleName roleName = user.getRole() != null && user.getRole().getName() != null
             ? user.getRole().getName()
             : RoleName.USER;
@@ -45,6 +47,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
+                // Agrega el prefijo "ROLE_" para que Spring Security reconozca el authority como un rol
                 List.of(new SimpleGrantedAuthority("ROLE_" + roleName.name()))
         );
     }
