@@ -1,6 +1,6 @@
 package com.uade.tpo.ecommerce.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,7 +17,8 @@ public class ProductImage {
     private String url;
 
     // RELACIÓN CON PRODUCT
-    @JsonIgnore
+    // Usamos WRITE_ONLY para aceptar product en el request pero no devolverlo en el response (evita bucles JSON)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
