@@ -1,7 +1,11 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Order;
+import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.entity.User;
+import com.uade.tpo.ecommerce.entity.Cart;
+import com.uade.tpo.ecommerce.entity.CartItem;
+import com.uade.tpo.ecommerce.enums.CartStatus;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
@@ -12,7 +16,9 @@ import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
 import com.uade.tpo.ecommerce.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,36 +64,68 @@ public class OrderService {
         return repository.findById(id).orElseThrow(OrderNotFoundException::new);
     }
 
-        /**
-         * Crea una nueva orden a partir de un carrito y usuario existentes.
-         * @param order datos de la orden
-         * @return la orden creada
-         * @throws CartNotFoundException si el carrito no existe
-         * @throws CartAlreadyOrderedException si el carrito ya tiene una orden
-         * @throws UserNotFoundException si el usuario no existe
-         */
-        public Order create(Order order)
-            throws CartNotFoundException, CartAlreadyOrderedException, UserNotFoundException {
+    /**
+     * Crea una nueva orden a partir de un carrito y usuario existentes.
+     * @param order datos de la orden
+     * @return la orden creada
+     * @throws CartNotFoundException si el carrito no existe
+     * @throws CartAlreadyOrderedException si el carrito ya tiene una orden
+     * @throws UserNotFoundException si el usuario no existe
+     */
+    @Transactional
+    public Order create(Order order) throws CartNotFoundException, CartAlreadyOrderedException, UserNotFoundException {
+        // Validaciones de existencia y estado del carrito
         if (order.getCart() == null || order.getCart().getId() == null) {
             throw new CartNotFoundException();
         }
 
+        // Verificar que el carrito no esté asociado a otra orden
         Long cartId = order.getCart().getId();
-        if (!cartRepository.existsById(cartId)) {
-            throw new CartNotFoundException();
-        }
         if (repository.existsByCartId(cartId)) {
             throw new CartAlreadyOrderedException();
         }
 
-        order.setCart(cartRepository.getReferenceById(cartId));
+        // Validar que el carrito exista y tenga items
+        Cart cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            throw new IllegalArgumentException("No se puede crear una orden con un carrito vacío");
+        }
+
+        // Crear snapshot de los items del carrito para la orden
+        List<OrderItem> snapshotItems = new ArrayList<>();
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setUnitPrice(cartItem.getUnitPrice());
+            orderItem.setProduct(cartItem.getProduct());
+            snapshotItems.add(orderItem);
+        }
+
+        // Asociar la orden al carrito y usuario, y guardar la orden
+        order.setCart(cart);
         if (order.getUser() != null && order.getUser().getId() != null) {
             User user = userRepository.findById(order.getUser().getId()).orElseThrow(UserNotFoundException::new);
             order.setUser(user);
         }
         order.setDate(new Date());
         order.setStatus(OrderStatus.CREATED);
-        return repository.save(order);
+
+        // Guardar la orden y los items asociados
+        Order savedOrder = repository.save(order);
+        for (OrderItem snapshotItem : snapshotItems) {
+            snapshotItem.setOrder(savedOrder);
+        }
+        savedOrder.setItems(snapshotItems);
+        savedOrder = repository.save(savedOrder);
+
+        // Limpiar el carrito
+        cart.getItems().clear();
+        // Dejar el carrito en estado activo para que pueda ser reutilizado por el usuario
+        cart.setStatus(CartStatus.ACTIVE);
+
+        cartRepository.save(cart);
+
+        return savedOrder;
     }
 
     /**
