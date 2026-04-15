@@ -9,6 +9,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -19,11 +20,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
         MethodArgumentTypeMismatchException.class,
+        MissingPathVariableException.class,
         HttpMessageNotReadableException.class,
         MissingServletRequestParameterException.class,
         IllegalArgumentException.class
     })
     public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
+        if (ex instanceof MethodArgumentTypeMismatchException mismatch) {
+            String paramName = mismatch.getName();
+            Object invalidValue = mismatch.getValue();
+            String message = "El parametro '" + paramName + "' debe ser numerico";
+
+            if (invalidValue != null && invalidValue.toString().startsWith(":")) {
+                message = "El parametro de path '" + paramName + "' es invalido. Reemplace ':" + paramName + "' por un numero";
+            }
+
+            return buildError(HttpStatus.BAD_REQUEST, message, request.getRequestURI());
+        }
+
+        if (ex instanceof MissingPathVariableException missingPathVariable) {
+            String message = "Falta el parametro de path '" + missingPathVariable.getVariableName() + "'";
+            return buildError(HttpStatus.BAD_REQUEST, message, request.getRequestURI());
+        }
+
+        if (ex instanceof MissingServletRequestParameterException missingParam) {
+            String message = "Falta el parametro requerido '" + missingParam.getParameterName() + "'";
+            return buildError(HttpStatus.BAD_REQUEST, message, request.getRequestURI());
+        }
+
+        if (ex instanceof HttpMessageNotReadableException) {
+            return buildError(HttpStatus.BAD_REQUEST, "El body de la solicitud tiene un formato invalido", request.getRequestURI());
+        }
+
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI());
     }
 
