@@ -2,7 +2,7 @@ package com.uade.tpo.ecommerce.config;
 
 import com.uade.tpo.ecommerce.auth.JwtAuthFilter;
 import com.uade.tpo.ecommerce.enums.RoleName;
-import com.uade.tpo.ecommerce.exceptions.ErrorResponseWriter;
+import com.uade.tpo.ecommerce.exceptions.CustomResponseWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -33,7 +33,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthFilter jwtAuthFilter,
-                                                   ErrorResponseWriter errorResponseWriter) throws Exception {
+                                                   CustomResponseWriter responseWriter) throws Exception {
         http
             // Deshabilitamos CSRF ya que nuestra API es sin estado y no usamos cookies para autenticación
             .csrf(AbstractHttpConfigurer::disable)
@@ -41,9 +41,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) ->
-                    errorResponseWriter.write(response, HttpStatus.UNAUTHORIZED, "No autorizado"))
+                    responseWriter.write(response, HttpStatus.UNAUTHORIZED, "No autorizado"))
                 .accessDeniedHandler((request, response, accessDeniedException) ->
-                    errorResponseWriter.write(response, HttpStatus.FORBIDDEN, "No tiene permisos para realizar esta acción"))
+                    responseWriter.write(response, HttpStatus.FORBIDDEN, "No tiene permisos para realizar esta acción"))
             )
             // Definimos las reglas de autorización para los endpoints de la API según los roles de usuario
             .authorizeHttpRequests(auth -> auth

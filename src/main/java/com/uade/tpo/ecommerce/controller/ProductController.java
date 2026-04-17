@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Product;
+import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.CategoryNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
@@ -45,8 +46,8 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) throws ProductNotFoundException {
+    public CustomResponse delete(@PathVariable Long id) throws ProductNotFoundException {
         service.delete(id);
+        return new CustomResponse(true, "Producto eliminado correctamente");
     }
 }

@@ -2,6 +2,7 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Role;
 import com.uade.tpo.ecommerce.entity.User;
+import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.RoleNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.UserDuplicateException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
@@ -51,8 +52,8 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) throws UserNotFoundException {
+    public CustomResponse delete(@PathVariable Long id) throws UserNotFoundException {
         service.delete(id);
+        return new CustomResponse(true, "Usuario eliminado correctamente");
     }
 }

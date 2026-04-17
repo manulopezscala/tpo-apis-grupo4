@@ -1,6 +1,6 @@
 package com.uade.tpo.ecommerce.exceptions;
 
-import com.uade.tpo.ecommerce.entity.dto.ErrorResponse;
+import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
         MissingServletRequestParameterException.class,
         IllegalArgumentException.class
     })
-    public ResponseEntity<ErrorResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<CustomResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
         if (ex instanceof MethodArgumentTypeMismatchException mismatch) {
             String paramName = mismatch.getName();
             Object invalidValue = mismatch.getValue();
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
      * @return cuerpo de error con estado 401
      */
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
+    public ResponseEntity<CustomResponse> handleBadCredentials(BadCredentialsException ex, HttpServletRequest request) {
         return buildError(HttpStatus.UNAUTHORIZED, "Credenciales incorrectas", request.getRequestURI());
     }
 
@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
      * @return cuerpo de error con estado 401
      */
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex, HttpServletRequest request) {
+    public ResponseEntity<CustomResponse> handleAuthentication(AuthenticationException ex, HttpServletRequest request) {
         return buildError(HttpStatus.UNAUTHORIZED, ex.getMessage(), request.getRequestURI());
     }
 
@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
      * @return cuerpo de error con estado definido por @ResponseStatus o 500
      */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleApplicationException(Exception ex, HttpServletRequest request) {
+    public ResponseEntity<CustomResponse> handleApplicationException(Exception ex, HttpServletRequest request) {
         ResponseStatus responseStatus = AnnotationUtils.findAnnotation(ex.getClass(), ResponseStatus.class);
         if (responseStatus != null) {
             String message = responseStatus.reason().isBlank() ? ex.getMessage() : responseStatus.reason();
@@ -115,7 +115,7 @@ public class GlobalExceptionHandler {
      * @return cuerpo de error con estado 500
      */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeError(RuntimeException ex, HttpServletRequest request) {
+    public ResponseEntity<CustomResponse> handleRuntimeError(RuntimeException ex, HttpServletRequest request) {
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI());
     }
 
@@ -127,8 +127,8 @@ public class GlobalExceptionHandler {
      * @param path ruta solicitada donde ocurrió el error
      * @return respuesta HTTP con el cuerpo de error normalizado
      */
-    private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String message, String path) {
-        ErrorResponse body = new ErrorResponse(true, defaultMessage(message));
+    private ResponseEntity<CustomResponse> buildError(HttpStatus status, String message, String path) {
+        CustomResponse body = new CustomResponse(false, defaultMessage(message));
         return ResponseEntity.status(status).body(body);
     }
 

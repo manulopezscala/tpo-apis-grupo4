@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Cart;
+import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
 import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
@@ -43,8 +44,8 @@ public class CartController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) throws CartNotFoundException {
+    public CustomResponse delete(@PathVariable Long id) throws CartNotFoundException {
         service.delete(id);
+        return new CustomResponse(true, "Carrito eliminado correctamente");
     }
 }

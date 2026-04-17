@@ -1,7 +1,7 @@
 package com.uade.tpo.ecommerce.exceptions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uade.tpo.ecommerce.entity.dto.ErrorResponse;
+import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +13,7 @@ import java.io.IOException;
 /**
  * Escribe respuestas de error JSON estandarizadas directamente en la respuesta HTTP.
  */
-public class ErrorResponseWriter {
+public class CustomResponseWriter {
 
     private final ObjectMapper objectMapper;
 
@@ -22,7 +22,7 @@ public class ErrorResponseWriter {
      *
      * @param objectMapper mapper utilizado para serializar el cuerpo de error
      */
-    public ErrorResponseWriter(ObjectMapper objectMapper) {
+    public CustomResponseWriter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -38,7 +38,7 @@ public class ErrorResponseWriter {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        objectMapper.writeValue(response.getWriter(), new ErrorResponse(true, defaultMessage(message)));
+        objectMapper.writeValue(response.getWriter(), new CustomResponse(false, defaultMessage(message)));
     }
 
     /**
