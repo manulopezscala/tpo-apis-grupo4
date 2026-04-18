@@ -86,7 +86,7 @@ USERS ||--o{ ORDERS : realiza
 CATEGORIES ||--o{ PRODUCTS : clasifica
 
 PRODUCTS ||--o{ PRODUCT_IMAGES : tiene
-PRODUCTS ||--o{ DISCOUNTS : tiene
+PRODUCTS ||--|| DISCOUNTS : tiene
 PRODUCTS ||--o{ CART_ITEMS : aparece
 PRODUCTS ||--o{ ORDER_ITEMS : aparece
 
