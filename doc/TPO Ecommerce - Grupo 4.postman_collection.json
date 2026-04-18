@@ -9,6 +9,7 @@
   "item": [
     {
       "name": "Auth",
+      "description": "Endpoints de autenticación y generación de tokens JWT.",
       "item": [
         {
           "name": "Login",
@@ -60,6 +61,7 @@
     },
     {
       "name": "Users",
+      "description": "Gestión de usuarios, roles y permisos. Solo ADMIN puede crear, actualizar y eliminar usuarios.",
       "item": [
         {
           "name": "Obtener roles disponibles",
@@ -93,7 +95,8 @@
               "path": [
                 "users"
               ]
-            }
+            },
+            "description": "Lista todos los usuarios registrados en el sistema. Solo ADMIN puede acceder."
           },
           "response": []
         },
@@ -117,7 +120,8 @@
                   "value": "4"
                 }
               ]
-            }
+            },
+            "description": "Obtiene los detalles de un usuario específico. Solo ADMIN puede acceder."
           },
           "response": []
         },
@@ -187,7 +191,8 @@
                   "value": "5"
                 }
               ]
-            }
+            },
+            "description": "Actualiza los datos de un usuario existente. Solo ADMIN puede actualizar usuarios."
           },
           "response": []
         },
@@ -211,7 +216,8 @@
                   "value": "2"
                 }
               ]
-            }
+            },
+            "description": "Elimina un usuario del sistema. Solo ADMIN puede eliminar usuarios. Operación irreversible."
           },
           "response": []
         }
@@ -219,6 +225,7 @@
     },
     {
       "name": "Categories",
+      "description": "Gestión de categorías de productos. Solo ADMIN puede crear y eliminar categorías.",
       "item": [
         {
           "name": "Obtener todas las categorías",
@@ -233,7 +240,8 @@
               "path": [
                 "categories"
               ]
-            }
+            },
+            "description": "Lista todas las categorías disponibles en el sistema."
           },
           "response": []
         },
@@ -257,7 +265,8 @@
                   "value": "3"
                 }
               ]
-            }
+            },
+            "description": "Obtiene los detalles de una categoría específica."
           },
           "response": []
         },
@@ -288,7 +297,8 @@
               "path": [
                 "categories"
               ]
-            }
+            },
+            "description": "Crea una nueva categoría de productos. Solo ADMIN puede crear categorías."
           },
           "response": []
         },
@@ -312,7 +322,8 @@
                   "value": "2"
                 }
               ]
-            }
+            },
+            "description": "Elimina una categoría del sistema. Solo ADMIN puede eliminar categorías."
           },
           "response": []
         }
@@ -320,6 +331,7 @@
     },
     {
       "name": "Products",
+      "description": "Gestión de productos: crear, listar, actualizar y eliminar. Solo ADMIN puede crear, actualizar y eliminar productos.",
       "item": [
         {
           "name": "Obtener todos los productos",
@@ -334,7 +346,8 @@
               "path": [
                 "products"
               ]
-            }
+            },
+            "description": "Lista todos los productos disponibles en el catálogo."
           },
           "response": []
         },
@@ -358,7 +371,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Obtiene los detalles completos de un producto específico, incluidas imágenes y descuentos."
           },
           "response": []
         },
@@ -389,7 +403,8 @@
               "path": [
                 "products"
               ]
-            }
+            },
+            "description": "Crea un nuevo producto. Solo ADMIN. El seller debe ser un usuario existente y la categoría debe existir."
           },
           "response": []
         },
@@ -427,7 +442,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Actualiza los datos de un producto existente. Solo ADMIN. Permite cambiar precio, stock, descripción, etc."
           },
           "response": []
         },
@@ -451,7 +467,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Elimina un producto del sistema. Solo ADMIN. Operación irreversible que también elimina sus imágenes y descuentos."
           },
           "response": []
         }
@@ -459,6 +476,7 @@
     },
     {
       "name": "Product Images",
+      "description": "Gestión de imágenes de productos. Solo ADMIN puede agregar y eliminar imágenes.",
       "item": [
         {
           "name": "Agregar imagen a producto",
@@ -487,7 +505,33 @@
               "path": [
                 "product-images"
               ]
-            }
+            },
+            "description": "Agrega una nueva imagen a un producto. Solo ADMIN. Permite múltiples imágenes por producto."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar imagen",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/product-images/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "product-images",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina una imagen de un producto. Solo ADMIN."
           },
           "response": []
         }
@@ -495,6 +539,7 @@
     },
     {
       "name": "Discounts",
+      "description": "Gestión de descuentos para productos. Solo ADMIN puede crear y eliminar descuentos. Un producto solo puede tener un descuento activo.",
       "item": [
         {
           "name": "Crear descuento",
@@ -524,7 +569,32 @@
                 "discounts"
               ]
             },
-            "description": "Crea un descuento asociado a un producto. Solo puede haber un descuento por producto."
+            "description": "Crea un descuento asociado a un producto. Solo ADMIN. Solo puede haber un descuento por producto."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar descuento",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/discounts/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "discounts",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina un descuento del sistema. Solo ADMIN. El producto recuperará su precio original."
           },
           "response": []
         }
@@ -532,6 +602,7 @@
     },
     {
       "name": "Carts",
+      "description": "Gestión de carritos de compra. Cada usuario puede tener múltiples carritos. El checkout convierte el carrito en una orden.",
       "item": [
         {
           "name": "Obtener todos los carritos",
@@ -546,7 +617,8 @@
               "path": [
                 "carts"
               ]
-            }
+            },
+            "description": "Lista todos los carritos en el sistema. Solo ADMIN puede acceder."
           },
           "response": []
         },
@@ -570,7 +642,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Obtiene los detalles de un carrito específico, incluyendo subtotal y moneda."
           },
           "response": []
         },
@@ -601,7 +674,8 @@
               "path": [
                 "carts"
               ]
-            }
+            },
+            "description": "Crea un nuevo carrito para un usuario. El usuario puede tener múltiples carritos activos."
           },
           "response": []
         },
@@ -632,6 +706,32 @@
           "response": []
         },
         {
+          "name": "Obtener items del carrito",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/carts/:id/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "carts",
+                ":id",
+                "items"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Lista todos los productos agregados a un carrito. Útil para revisar el contenido antes de hacer checkout."
+          },
+          "response": []
+        },
+        {
           "name": "Eliminar carrito",
           "request": {
             "method": "DELETE",
@@ -651,7 +751,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Elimina un carrito del sistema. Solo ADMIN. Si tiene items, estos se pierden sin convertirse en orden."
           },
           "response": []
         }
@@ -659,6 +760,7 @@
     },
     {
       "name": "Cart Items",
+      "description": "Gestión de items dentro de carritos. Permite agregar y eliminar productos de un carrito.",
       "item": [
         {
           "name": "Agregar item al carrito",
@@ -687,7 +789,8 @@
               "path": [
                 "cart-items"
               ]
-            }
+            },
+            "description": "Agrega un producto a un carrito con cantidad específica. El precio se captura en el momento."
           },
           "response": []
         },
@@ -711,7 +814,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Elimina un producto específico del carrito. El carrito se actualiza automáticamente."
           },
           "response": []
         }
@@ -719,6 +823,7 @@
     },
     {
       "name": "Orders",
+      "description": "Gestión de órdenes de compra. Las órdenes se crean desde carritos cerrados. Solo ADMIN puede cambiar estado y eliminar órdenes.",
       "item": [
         {
           "name": "Obtener todas las órdenes",
@@ -733,7 +838,8 @@
               "path": [
                 "orders"
               ]
-            }
+            },
+            "description": "Lista todas las órdenes en el sistema. Solo ADMIN puede acceder."
           },
           "response": []
         },
@@ -757,7 +863,8 @@
                   "value": "1"
                 }
               ]
-            }
+            },
+            "description": "Obtiene los detalles de una orden específica, incluyendo items, total y estado actual."
           },
           "response": []
         },
@@ -832,11 +939,63 @@
             "description": "Solo ADMIN puede cambiar el estado. Enviar en el body: { \"status\": \"CONFIRMED\" }. Valores posibles: CREATED, PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
           },
           "response": []
+        },
+        {
+          "name": "Obtener items de orden",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:id/items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":id",
+                "items"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Lista todos los productos incluidos en una orden. Muestra el snapshot de compra capturado en el momento de creación de la orden."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar orden",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/orders/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina una orden completa con todos sus items y su historial de cambios. Solo ADMIN. Usar con cuidado: es una operación irreversible."
+          },
+          "response": []
         }
       ]
     },
     {
       "name": "Order Items",
+      "description": "Gestión de items dentro de órdenes. Permite crear y eliminar productos de una orden después de su creación.",
       "item": [
         {
           "name": "Crear item de orden",
@@ -865,7 +1024,33 @@
               "path": [
                 "order-items"
               ]
-            }
+            },
+            "description": "Agrega un producto a una orden existente. Solo ADMIN. Útil para agregar items olvidados después de crear la orden."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar item de orden",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/order-items/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "order-items",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Elimina un producto específico de una orden. Solo ADMIN. Útil para remover items que fueron agregados por error después de crear la orden."
           },
           "response": []
         }
