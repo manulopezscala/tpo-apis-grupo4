@@ -3,6 +3,7 @@ package com.uade.tpo.ecommerce.entity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -54,5 +55,5 @@ public class Product {
 
     // RELACIÓN CON PRODUCT IMAGES
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductImage> images;
+    private List<ProductImage> images = new ArrayList<>();
 }
