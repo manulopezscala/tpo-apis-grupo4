@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.ProductImage;
+import com.uade.tpo.ecommerce.exceptions.ProductImageNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.repository.ProductRepository;
 import com.uade.tpo.ecommerce.repository.ProductImageRepository;
@@ -39,5 +40,15 @@ public class ProductImageService {
         }
         image.setProduct(productRepository.findById(image.getProduct().getId()).orElseThrow(ProductNotFoundException::new));
         return repository.save(image);
+    }
+
+    /**
+     * Elimina una imagen de producto por su ID.
+     * @param id identificador de la imagen
+     * @throws ProductImageNotFoundException si la imagen no existe
+     */
+    public void delete(Long id) throws ProductImageNotFoundException {
+        if (!repository.existsById(id)) throw new ProductImageNotFoundException();
+        repository.deleteById(id);
     }
 }

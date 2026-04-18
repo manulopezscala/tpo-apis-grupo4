@@ -3,6 +3,7 @@ package com.uade.tpo.ecommerce.service;
 import com.uade.tpo.ecommerce.entity.Discount;
 import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.exceptions.DiscountDuplicateException;
+import com.uade.tpo.ecommerce.exceptions.DiscountNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.repository.DiscountRepository;
 import com.uade.tpo.ecommerce.repository.ProductRepository;
@@ -33,7 +34,7 @@ public class DiscountService {
      * Crea un nuevo descuento para un producto existente.
      * @param discount datos del descuento
      * @return el descuento creado
-     * @throws DiscountDuplicateException si ya existe descuento para el producto
+     * @throws DiscountDuplicateException si ya existe un descuento activo para el producto
      * @throws ProductNotFoundException si el producto no existe
      */
     public Discount create(Discount discount) throws DiscountDuplicateException, ProductNotFoundException {
@@ -42,12 +43,23 @@ public class DiscountService {
         }
 
         Long productId = discount.getProduct().getId();
-        if (repository.existsByProductId(productId)) {
+        boolean creatingActiveDiscount = Boolean.TRUE.equals(discount.getActive());
+        if (creatingActiveDiscount && repository.existsByProductIdAndActiveTrue(productId)) {
             throw new DiscountDuplicateException();
         }
 
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         discount.setProduct(product);
         return repository.save(discount);
+    }
+
+    /**
+     * Elimina un descuento por su ID.
+     * @param id identificador del descuento
+     * @throws DiscountNotFoundException si el descuento no existe
+     */
+    public void delete(Long id) throws DiscountNotFoundException {
+        if (!repository.existsById(id)) throw new DiscountNotFoundException();
+        repository.deleteById(id);
     }
 }

@@ -3,7 +3,7 @@ package com.uade.tpo.ecommerce.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(code = HttpStatus.CONFLICT, reason = "El producto ya tiene un descuento asignado")
+@ResponseStatus(code = HttpStatus.CONFLICT, reason = "El producto ya tiene un descuento activo asignado")
 public class DiscountDuplicateException extends Exception {
 
 }

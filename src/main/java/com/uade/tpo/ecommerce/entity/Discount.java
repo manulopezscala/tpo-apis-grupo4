@@ -22,7 +22,7 @@ public class Discount {
     // RELACIÓN CON PRODUCT
     // Usamos WRITE_ONLY para aceptar product en el request pero no devolverlo en el response (evita bucles JSON)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @OneToOne
-    @JoinColumn(name = "product_id", unique = true)
+    @ManyToOne
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }

@@ -50,8 +50,8 @@ public class Product {
     private List<CartItem> cartItems;
 
     // RELACIÓN CON DISCOUNT
-    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
-    private Discount discount;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<Discount> discounts;
 
     // RELACIÓN CON PRODUCT IMAGES
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
