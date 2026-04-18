@@ -71,7 +71,7 @@ public class OrderItemService {
     /**
      * Elimina un ítem de orden por su ID.
      * @param id identificador del ítem
-     * @throws com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException si el ítem no existe
+     * @throws OrderItemNotFoundException si el ítem no existe
      */
     public void delete(@NonNull Long id) throws OrderItemNotFoundException {
         if (authenticatedUserService.isCurrentUserAdmin()) {
