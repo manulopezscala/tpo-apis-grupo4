@@ -1,0 +1,103 @@
+@startuml
+
+class Role {
+  id: Long
+  name: String
+}
+
+class User {
+  id: Long
+  username: String
+  email: String
+  password: String
+  firstName: String
+  lastName: String
+  role_id: Long
+}
+
+class Category {
+  id: Long
+  name: String
+  description: String
+}
+
+class Product {
+  id: Long
+  name: String
+  description: String
+  price: Double
+  stock: Integer
+  active: Boolean
+  seller_id: Long
+  category_id: Long
+}
+
+class Cart {
+  id: Long
+  status: String
+  currency: String
+  user_id: Long
+}
+
+class CartItem {
+  id: Long
+  quantity: Integer
+  unitPrice: Double
+  cart_id: Long
+  product_id: Long
+}
+
+class Order {
+  id: Long
+  date: Date
+  total: Double
+  status: String
+  user_id: Long
+  cart_id: Long
+}
+
+class OrderItem {
+  id: Long
+  quantity: Integer
+  unitPrice: Double
+  order_id: Long
+  product_id: Long
+}
+
+class Discount {
+  id: Long
+  percentage: Double
+  active: Boolean
+  product_id: Long
+}
+
+class ProductImage {
+  id: Long
+  url: String
+  product_id: Long
+}
+
+'========================
+' RELACIONES (ESPAÑOL)
+'========================
+
+Role "1" -- "N" User : asigna
+
+User "1" -- "N" Product : publica
+User "1" -- "N" Order : realiza
+User "1" -- "N" Cart : tiene
+
+Category "1" -- "N" Product : pertenece
+
+Cart "1" -- "N" CartItem : incluye
+CartItem "N" -- "1" Product : detalle
+
+Product "1" -- "N" Discount : aplica
+Product "1" -- "N" ProductImage : contiene
+
+Product "1" -- "N" OrderItem : vendido
+Order "1" -- "N" OrderItem : incluye
+
+Cart "1" -- "1" Order : genera
+
+@enduml

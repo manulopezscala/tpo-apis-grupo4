@@ -1,0 +1,96 @@
+erDiagram
+
+USERS {
+  Long id PK
+  String username
+  String email
+  String password
+  String first_name
+  String last_name
+  Long role_id FK
+}
+
+ROLES {
+  Long id PK
+  String name
+}
+
+CATEGORIES {
+  Long id PK
+  String name
+  String description
+}
+
+PRODUCTS {
+  Long id PK
+  String name
+  String description
+  Double price
+  Integer stock
+  Boolean active
+  Long seller_id FK
+  Long category_id FK
+}
+
+PRODUCT_IMAGES {
+  Long id PK
+  String url
+  Long product_id FK
+}
+
+DISCOUNTS {
+  Long id PK
+  Double percentage
+  Boolean active
+  Long product_id FK
+}
+
+CARTS {
+  Long id PK
+  String status
+  String currency
+  Long user_id FK
+}
+
+CART_ITEMS {
+  Long id PK
+  Integer quantity
+  Double unit_price
+  Long cart_id FK
+  Long product_id FK
+}
+
+ORDERS {
+  Long id PK
+  Date date
+  Double total
+  String status
+  Long user_id FK
+  Long cart_id FK
+}
+
+ORDER_ITEMS {
+  Long id PK
+  Integer quantity
+  Double unit_price
+  Long order_id FK
+  Long product_id FK
+}
+
+%% RELACIONES
+ROLES ||--o{ USERS : tiene
+USERS ||--o{ PRODUCTS : vende
+USERS ||--o{ CARTS : posee
+USERS ||--o{ ORDERS : realiza
+
+CATEGORIES ||--o{ PRODUCTS : clasifica
+
+PRODUCTS ||--o{ PRODUCT_IMAGES : tiene
+PRODUCTS ||--o{ DISCOUNTS : tiene
+PRODUCTS ||--o{ CART_ITEMS : aparece
+PRODUCTS ||--o{ ORDER_ITEMS : aparece
+
+CARTS ||--o{ CART_ITEMS : contiene
+CARTS ||--|| ORDERS : genera
+
+ORDERS ||--o{ ORDER_ITEMS : contiene
