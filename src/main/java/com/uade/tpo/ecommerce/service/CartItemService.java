@@ -6,7 +6,9 @@ import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.exceptions.CartItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InsufficientStockException;
+import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
+import com.uade.tpo.ecommerce.enums.CartStatus;
 import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.CartItemRepository;
 import com.uade.tpo.ecommerce.repository.ProductRepository;
@@ -49,9 +51,10 @@ public class CartItemService {
      * @throws InsufficientStockException si no hay stock suficiente
      * @throws CartNotFoundException si el carrito no existe
      * @throws ProductNotFoundException si el producto no existe
+     * @throws InvalidCartStatusException si el carrito no está activo
      */
     public CartItem create(CartItem item)
-        throws InsufficientStockException, CartNotFoundException, ProductNotFoundException {
+        throws InsufficientStockException, CartNotFoundException, ProductNotFoundException, InvalidCartStatusException {
 
         if (item.getCart() == null || item.getCart().getId() == null) {
             throw new IllegalArgumentException("Debe informar un cart.id válido para crear el item");
@@ -71,6 +74,8 @@ public class CartItemService {
                 .orElseThrow(CartNotFoundException::new));
         }
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+
+        if (item.getCart().getStatus() != CartStatus.ACTIVE) throw new InvalidCartStatusException();
 
         int available = product.getStock();
         if (item.getQuantity() > available) throw new InsufficientStockException();
@@ -103,18 +108,24 @@ public class CartItemService {
      * Elimina un ítem de carrito por su ID.
      * @param id identificador del ítem
      * @throws CartItemNotFoundException si el ítem no existe
+     * @throws InvalidCartStatusException si el carrito del ítem no está activo
      */
-    public void delete(@NonNull Long id) throws CartItemNotFoundException {
+    public void delete(@NonNull Long id) throws CartItemNotFoundException, InvalidCartStatusException {
         if (authenticatedUserService.isCurrentUserAdmin()) {
-            if (!repository.existsById(id)) throw new CartItemNotFoundException();
-            repository.deleteById(id);
+            CartItem item = repository.findById(id).orElseThrow(CartItemNotFoundException::new);
+            if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) {
+                throw new InvalidCartStatusException();
+            }
+            repository.delete(item);
             return;
         }
 
         Long currentUserId = authenticatedUserService.getCurrentUserId();
-        if (!repository.existsByIdAndCartUserId(id, currentUserId)) {
-            throw new CartItemNotFoundException();
+        CartItem item = repository.findByIdAndCartUserId(id, currentUserId)
+            .orElseThrow(CartItemNotFoundException::new);
+        if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) {
+            throw new InvalidCartStatusException();
         }
-        repository.deleteById(id);
+        repository.delete(item);
     }
 }
