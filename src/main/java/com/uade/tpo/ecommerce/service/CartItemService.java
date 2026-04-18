@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.CartItem;
+import com.uade.tpo.ecommerce.entity.Discount;
 import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.exceptions.CartItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
@@ -41,16 +42,17 @@ public class CartItemService {
         this.authenticatedUserService = authenticatedUserService;
     }
 
-        /**
-         * Crea un nuevo ítem de carrito, validando stock y relaciones.
-         * @param item datos del ítem
-         * @return el ítem creado
-         * @throws InsufficientStockException si no hay stock suficiente
-         * @throws CartNotFoundException si el carrito no existe
-         * @throws ProductNotFoundException si el producto no existe
-         */
-        public CartItem create(CartItem item)
-            throws InsufficientStockException, CartNotFoundException, ProductNotFoundException {
+    /**
+     * Crea un nuevo ítem de carrito, validando stock y relaciones.
+     * @param item datos del ítem
+     * @return el ítem creado
+     * @throws InsufficientStockException si no hay stock suficiente
+     * @throws CartNotFoundException si el carrito no existe
+     * @throws ProductNotFoundException si el producto no existe
+     */
+    public CartItem create(CartItem item)
+        throws InsufficientStockException, CartNotFoundException, ProductNotFoundException {
+
         if (item.getCart() == null || item.getCart().getId() == null) {
             throw new IllegalArgumentException("Debe informar un cart.id válido para crear el item");
         }
@@ -73,7 +75,28 @@ public class CartItemService {
         int available = product.getStock();
         if (item.getQuantity() > available) throw new InsufficientStockException();
         item.setProduct(product);
+        item.setUnitPrice(calculateUnitPrice(product));
         return repository.save(item);
+    }
+
+    private Double calculateUnitPrice(Product product) {
+        Double basePrice = product.getPrice();
+        if (basePrice == null) {
+            throw new IllegalStateException("El producto no tiene precio configurado");
+        }
+
+        Discount discount = product.getDiscount();
+        if (discount == null || !Boolean.TRUE.equals(discount.getActive())) {
+            return basePrice;
+        }
+
+        Double percentage = discount.getPercentage();
+        if (percentage == null || percentage <= 0) {
+            return basePrice;
+        }
+
+        Double normalizedPercentage = Math.min(percentage, 100.0);
+        return basePrice * (1 - (normalizedPercentage / 100.0));
     }
 
     /**

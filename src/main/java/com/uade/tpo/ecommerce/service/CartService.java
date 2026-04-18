@@ -2,8 +2,12 @@ package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Cart;
 import com.uade.tpo.ecommerce.entity.User;
+import com.uade.tpo.ecommerce.entity.Order;
+import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.enums.CartStatus;
+import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.ActiveCartAlreadyExistsException;
+import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
 import com.uade.tpo.ecommerce.exceptions.ForbiddenOperationException;
@@ -11,11 +15,14 @@ import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
 import com.uade.tpo.ecommerce.entity.CartItem;
 import com.uade.tpo.ecommerce.repository.CartRepository;
+import com.uade.tpo.ecommerce.repository.OrderRepository;
 import com.uade.tpo.ecommerce.repository.UserRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -27,6 +34,7 @@ import java.util.List;
 public class CartService {
 
     private final CartRepository repository;
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final AuthenticatedUserService authenticatedUserService;
 
@@ -36,9 +44,11 @@ public class CartService {
      * @param userRepository repositorio de usuarios
      */
     public CartService(CartRepository repository,
+                       OrderRepository orderRepository,
                        UserRepository userRepository,
                        AuthenticatedUserService authenticatedUserService) {
         this.repository = repository;
+        this.orderRepository = orderRepository;
         this.userRepository = userRepository;
         this.authenticatedUserService = authenticatedUserService;
     }
@@ -110,11 +120,42 @@ public class CartService {
      * @throws CartNotFoundException si el carrito no existe
      * @throws InvalidCartStatusException si el carrito no está activo
      * @throws EmptyCartException si el carrito está vacío
+     * @throws CartAlreadyOrderedException si el carrito ya tiene una orden
      */
-    public Cart checkout(@NonNull Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException {
+    @Transactional
+    public Cart checkout(@NonNull Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException, CartAlreadyOrderedException {
         Cart cart = getById(id);
         if (cart.getStatus() != CartStatus.ACTIVE) throw new InvalidCartStatusException();
         if (cart.getItems() == null || cart.getItems().isEmpty()) throw new EmptyCartException();
+
+        if (orderRepository.existsByCartId(cart.getId())) throw new CartAlreadyOrderedException();
+
+        List<OrderItem> snapshotItems = new ArrayList<>();
+        for (CartItem cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setUnitPrice(cartItem.getUnitPrice());
+            orderItem.setProduct(cartItem.getProduct());
+            snapshotItems.add(orderItem);
+        }
+
+        double total = cart.getItems().stream()
+            .mapToDouble(item -> item.getUnitPrice() * item.getQuantity())
+            .sum();
+
+        Order order = new Order();
+        order.setCart(cart);
+        order.setUser(cart.getUser());
+        order.setDate(new Date());
+        order.setStatus(OrderStatus.CREATED);
+        order.setTotal(total);
+        order.setItems(snapshotItems);
+        for (OrderItem snapshotItem : snapshotItems) {
+            snapshotItem.setOrder(order);
+        }
+
+        Order savedOrder = orderRepository.save(order);
+        cart.setOrder(savedOrder);
         cart.setStatus(CartStatus.COMPLETED);
         return repository.save(cart);
     }

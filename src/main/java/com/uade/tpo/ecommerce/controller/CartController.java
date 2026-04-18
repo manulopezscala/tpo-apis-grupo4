@@ -4,6 +4,7 @@ import com.uade.tpo.ecommerce.entity.Cart;
 import com.uade.tpo.ecommerce.entity.CartItem;
 import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.ActiveCartAlreadyExistsException;
+import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
 import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
@@ -41,7 +42,7 @@ public class CartController {
     }
 
     @PostMapping("/{id}/checkout")
-    public Cart checkout(@PathVariable Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException {
+    public Cart checkout(@PathVariable Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException, CartAlreadyOrderedException {
         return service.checkout(id);
     }
 

@@ -17,6 +17,7 @@ public class CartItem {
     private Integer quantity;
 
     @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Double unitPrice;
 
     // RELACIÓN CON CART
