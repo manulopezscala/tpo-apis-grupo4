@@ -1,6 +1,8 @@
 package com.uade.tpo.ecommerce.service;
 
+import com.uade.tpo.ecommerce.entity.Discount;
 import com.uade.tpo.ecommerce.entity.OrderItem;
+import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
@@ -64,8 +66,30 @@ public class OrderItemService {
             item.setOrder(orderRepository.findByIdAndUserId(orderId, currentUserId)
                 .orElseThrow(OrderNotFoundException::new));
         }
-        item.setProduct(productRepository.findById(productId).orElseThrow(ProductNotFoundException::new));
+        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+        item.setProduct(product);
+        item.setUnitPrice(calculateUnitPrice(product));
         return repository.save(item);
+    }
+
+    private Double calculateUnitPrice(Product product) {
+        Double basePrice = product.getPrice();
+        if (basePrice == null) {
+            throw new IllegalStateException("El producto no tiene precio configurado");
+        }
+
+        Discount discount = product.getDiscount();
+        if (discount == null || !Boolean.TRUE.equals(discount.getActive())) {
+            return basePrice;
+        }
+
+        Double percentage = discount.getPercentage();
+        if (percentage == null || percentage <= 0) {
+            return basePrice;
+        }
+
+        Double normalizedPercentage = Math.min(percentage, 100.0);
+        return basePrice * (1 - (normalizedPercentage / 100.0));
     }
 
     /**
