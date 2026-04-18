@@ -34,7 +34,7 @@ public class DiscountService {
      * Crea un nuevo descuento para un producto existente.
      * @param discount datos del descuento
      * @return el descuento creado
-     * @throws DiscountDuplicateException si ya existe un descuento activo para el producto
+     * @throws DiscountDuplicateException si ya existe un descuento para el producto
      * @throws ProductNotFoundException si el producto no existe
      */
     public Discount create(Discount discount) throws DiscountDuplicateException, ProductNotFoundException {
@@ -43,8 +43,7 @@ public class DiscountService {
         }
 
         Long productId = discount.getProduct().getId();
-        boolean creatingActiveDiscount = Boolean.TRUE.equals(discount.getActive());
-        if (creatingActiveDiscount && repository.existsByProductIdAndActiveTrue(productId)) {
+        if (repository.existsByProductId(productId)) {
             throw new DiscountDuplicateException();
         }
 
