@@ -92,7 +92,7 @@ Category "1" -- "N" Product : pertenece
 Cart "1" -- "N" CartItem : incluye
 CartItem "N" -- "1" Product : detalle
 
-Product "1" -- "N" Discount : aplica
+Product "1" -- "1" Discount : aplica
 Product "1" -- "N" ProductImage : contiene
 
 Product "1" -- "N" OrderItem : vendido
