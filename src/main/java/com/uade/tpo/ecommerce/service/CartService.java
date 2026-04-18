@@ -7,6 +7,7 @@ import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
 import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
+import com.uade.tpo.ecommerce.entity.CartItem;
 import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -93,5 +94,16 @@ public class CartService {
     public void delete(Long id) throws CartNotFoundException {
         if (!repository.existsById(id)) throw new CartNotFoundException();
         repository.deleteById(id);
+    }
+
+    /**
+     * Devuelve los items de un carrito por su ID.
+     * @param id identificador del carrito
+     * @return lista de items del carrito
+     * @throws CartNotFoundException si el carrito no existe
+     */
+    public List<CartItem> getCartItems(Long id) throws CartNotFoundException {
+        Cart cart = getById(id);
+        return cart.getItems();
     }
 }

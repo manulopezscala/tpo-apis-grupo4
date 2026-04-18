@@ -176,4 +176,25 @@ public class OrderService {
             default -> "-";
         };
     }
+
+    /**
+     * Devuelve los items de una orden por su ID.
+     * @param id identificador de la orden
+     * @return lista de items de la orden
+     * @throws OrderNotFoundException si la orden no existe
+     */
+    public List<OrderItem> getOrderItems(Long id) throws OrderNotFoundException {
+        Order order = getById(id);
+        return order.getItems();
+    }
+
+    /**
+     * Elimina una orden por su ID.
+     * @param id identificador de la orden
+     * @throws OrderNotFoundException si la orden no existe
+     */
+    public void delete(Long id) throws OrderNotFoundException {
+        if (!repository.existsById(id)) throw new OrderNotFoundException();
+        repository.deleteById(id);
+    }
 }

@@ -1,8 +1,10 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Order;
+import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.entity.dto.OrderStatusUpdateRequest;
+import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
@@ -58,5 +60,16 @@ public class OrderController {
             throw new InvalidOrderStatusException("El status enviado no es válido. Los valores permitidos son: " + allowed);
         }
         return service.updateStatus(id, newStatus);
+    }
+
+    @GetMapping("/{id}/items")
+    public List<OrderItem> getOrderItems(@PathVariable Long id) throws OrderNotFoundException {
+        return service.getOrderItems(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public CustomResponse delete(@PathVariable Long id) throws OrderNotFoundException {
+        service.delete(id);
+        return new CustomResponse(true, "Orden eliminada correctamente");
     }
 }

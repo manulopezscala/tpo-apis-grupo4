@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.OrderItem;
+import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
@@ -52,5 +53,15 @@ public class OrderItemService {
         item.setOrder(orderRepository.findById(item.getOrder().getId()).orElseThrow(OrderNotFoundException::new));
         item.setProduct(productRepository.findById(item.getProduct().getId()).orElseThrow(ProductNotFoundException::new));
         return repository.save(item);
+    }
+
+    /**
+     * Elimina un ítem de orden por su ID.
+     * @param id identificador del ítem
+     * @throws com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException si el ítem no existe
+     */
+    public void delete(Long id) throws OrderItemNotFoundException {
+        if (!repository.existsById(id)) throw new OrderItemNotFoundException();
+        repository.deleteById(id);
     }
 }

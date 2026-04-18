@@ -1,6 +1,7 @@
 package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.Cart;
+import com.uade.tpo.ecommerce.entity.CartItem;
 import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
@@ -41,6 +42,11 @@ public class CartController {
     @PostMapping("/{id}/checkout")
     public Cart checkout(@PathVariable Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException {
         return service.checkout(id);
+    }
+
+    @GetMapping("/{id}/items")
+    public List<CartItem> getCartItems(@PathVariable Long id) throws CartNotFoundException {
+        return service.getCartItems(id);
     }
 
     @DeleteMapping("/{id}")
