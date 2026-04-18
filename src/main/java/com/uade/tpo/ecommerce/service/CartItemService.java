@@ -14,6 +14,7 @@ import com.uade.tpo.ecommerce.repository.CartItemRepository;
 import com.uade.tpo.ecommerce.repository.ProductRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -53,6 +54,7 @@ public class CartItemService {
      * @throws ProductNotFoundException si el producto no existe
      * @throws InvalidCartStatusException si el carrito no está activo
      */
+    @Transactional
     public CartItem create(CartItem item)
         throws InsufficientStockException, CartNotFoundException, ProductNotFoundException, InvalidCartStatusException {
 
@@ -79,6 +81,10 @@ public class CartItemService {
 
         int available = product.getStock();
         if (item.getQuantity() > available) throw new InsufficientStockException();
+
+        product.setStock(available - item.getQuantity());
+        productRepository.save(product);
+
         item.setProduct(product);
         item.setUnitPrice(calculateUnitPrice(product));
         return repository.save(item);
@@ -110,12 +116,20 @@ public class CartItemService {
      * @throws CartItemNotFoundException si el ítem no existe
      * @throws InvalidCartStatusException si el carrito del ítem no está activo
      */
+    @Transactional
     public void delete(@NonNull Long id) throws CartItemNotFoundException, InvalidCartStatusException {
         if (authenticatedUserService.isCurrentUserAdmin()) {
             CartItem item = repository.findById(id).orElseThrow(CartItemNotFoundException::new);
             if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) {
                 throw new InvalidCartStatusException();
             }
+
+            Product product = item.getProduct();
+            if (product != null && product.getStock() != null && item.getQuantity() != null) {
+                product.setStock(product.getStock() + item.getQuantity());
+                productRepository.save(product);
+            }
+
             repository.delete(item);
             return;
         }
@@ -126,6 +140,13 @@ public class CartItemService {
         if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) {
             throw new InvalidCartStatusException();
         }
+
+        Product product = item.getProduct();
+        if (product != null && product.getStock() != null && item.getQuantity() != null) {
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
         repository.delete(item);
     }
 }
