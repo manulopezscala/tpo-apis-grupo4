@@ -9,6 +9,7 @@ import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.CartItemRepository;
 import com.uade.tpo.ecommerce.repository.ProductRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 
@@ -22,6 +23,7 @@ public class CartItemService {
     private final CartItemRepository repository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     /**
      * Constructor con inyección de dependencias.
@@ -31,10 +33,12 @@ public class CartItemService {
      */
     public CartItemService(CartItemRepository repository,
                            CartRepository cartRepository,
-                           ProductRepository productRepository) {
+                           ProductRepository productRepository,
+                           AuthenticatedUserService authenticatedUserService) {
         this.repository = repository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
         /**
@@ -54,8 +58,17 @@ public class CartItemService {
             throw new IllegalArgumentException("Debe informar un product.id válido para crear el item");
         }
 
-        item.setCart(cartRepository.findById(item.getCart().getId()).orElseThrow(CartNotFoundException::new));
-        Product product = productRepository.findById(item.getProduct().getId()).orElseThrow(ProductNotFoundException::new);
+        Long cartId = item.getCart().getId();
+        Long productId = item.getProduct().getId();
+
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            item.setCart(cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new));
+        } else {
+            Long currentUserId = authenticatedUserService.getCurrentUserId();
+            item.setCart(cartRepository.findByIdAndUserId(cartId, currentUserId)
+                .orElseThrow(CartNotFoundException::new));
+        }
+        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
 
         int available = product.getStock();
         if (item.getQuantity() > available) throw new InsufficientStockException();
@@ -68,8 +81,17 @@ public class CartItemService {
      * @param id identificador del ítem
      * @throws CartItemNotFoundException si el ítem no existe
      */
-    public void delete(Long id) throws CartItemNotFoundException {
-        if (!repository.existsById(id)) throw new CartItemNotFoundException();
+    public void delete(@NonNull Long id) throws CartItemNotFoundException {
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            if (!repository.existsById(id)) throw new CartItemNotFoundException();
+            repository.deleteById(id);
+            return;
+        }
+
+        Long currentUserId = authenticatedUserService.getCurrentUserId();
+        if (!repository.existsByIdAndCartUserId(id, currentUserId)) {
+            throw new CartItemNotFoundException();
+        }
         repository.deleteById(id);
     }
 }

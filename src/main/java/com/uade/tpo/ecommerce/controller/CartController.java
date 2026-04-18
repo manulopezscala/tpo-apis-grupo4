@@ -3,6 +3,7 @@ package com.uade.tpo.ecommerce.controller;
 import com.uade.tpo.ecommerce.entity.Cart;
 import com.uade.tpo.ecommerce.entity.CartItem;
 import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
+import com.uade.tpo.ecommerce.exceptions.ActiveCartAlreadyExistsException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.EmptyCartException;
 import com.uade.tpo.ecommerce.exceptions.InvalidCartStatusException;
@@ -35,7 +36,7 @@ public class CartController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Cart create(@RequestBody Cart cart) throws UserNotFoundException {
+    public Cart create(@RequestBody Cart cart) throws UserNotFoundException, ActiveCartAlreadyExistsException {
         return service.create(cart);
     }
 

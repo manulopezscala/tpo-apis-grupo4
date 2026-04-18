@@ -7,6 +7,7 @@ import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
 import com.uade.tpo.ecommerce.repository.OrderItemRepository;
 import com.uade.tpo.ecommerce.repository.ProductRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 
@@ -20,6 +21,7 @@ public class OrderItemService {
     private final OrderItemRepository repository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     /**
      * Constructor con inyección de dependencias.
@@ -29,10 +31,12 @@ public class OrderItemService {
      */
     public OrderItemService(OrderItemRepository repository,
                             OrderRepository orderRepository,
-                            ProductRepository productRepository) {
+                            ProductRepository productRepository,
+                            AuthenticatedUserService authenticatedUserService) {
         this.repository = repository;
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     /**
@@ -50,8 +54,17 @@ public class OrderItemService {
             throw new IllegalArgumentException("Debe informar un product.id válido para crear el item de orden");
         }
 
-        item.setOrder(orderRepository.findById(item.getOrder().getId()).orElseThrow(OrderNotFoundException::new));
-        item.setProduct(productRepository.findById(item.getProduct().getId()).orElseThrow(ProductNotFoundException::new));
+        Long orderId = item.getOrder().getId();
+        Long productId = item.getProduct().getId();
+
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            item.setOrder(orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new));
+        } else {
+            Long currentUserId = authenticatedUserService.getCurrentUserId();
+            item.setOrder(orderRepository.findByIdAndUserId(orderId, currentUserId)
+                .orElseThrow(OrderNotFoundException::new));
+        }
+        item.setProduct(productRepository.findById(productId).orElseThrow(ProductNotFoundException::new));
         return repository.save(item);
     }
 
@@ -60,8 +73,17 @@ public class OrderItemService {
      * @param id identificador del ítem
      * @throws com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException si el ítem no existe
      */
-    public void delete(Long id) throws OrderItemNotFoundException {
-        if (!repository.existsById(id)) throw new OrderItemNotFoundException();
+    public void delete(@NonNull Long id) throws OrderItemNotFoundException {
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            if (!repository.existsById(id)) throw new OrderItemNotFoundException();
+            repository.deleteById(id);
+            return;
+        }
+
+        Long currentUserId = authenticatedUserService.getCurrentUserId();
+        if (!repository.existsByIdAndOrderUserId(id, currentUserId)) {
+            throw new OrderItemNotFoundException();
+        }
         repository.deleteById(id);
     }
 }

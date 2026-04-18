@@ -9,12 +9,14 @@ import com.uade.tpo.ecommerce.enums.CartStatus;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.CartAlreadyOrderedException;
 import com.uade.tpo.ecommerce.exceptions.CartNotFoundException;
+import com.uade.tpo.ecommerce.exceptions.ForbiddenOperationException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.UserNotFoundException;
 import com.uade.tpo.ecommerce.repository.CartRepository;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
 import com.uade.tpo.ecommerce.repository.UserRepository;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,7 @@ public class OrderService {
     private final OrderRepository repository;
     private final CartRepository cartRepository;
     private final UserRepository userRepository;
+    private final AuthenticatedUserService authenticatedUserService;
 
     /**
      * Constructor con inyección de dependencias.
@@ -40,10 +43,14 @@ public class OrderService {
      * @param cartRepository repositorio de carritos
      * @param userRepository repositorio de usuarios
      */
-    public OrderService(OrderRepository repository, CartRepository cartRepository, UserRepository userRepository) {
+    public OrderService(OrderRepository repository,
+                        CartRepository cartRepository,
+                        UserRepository userRepository,
+                        AuthenticatedUserService authenticatedUserService) {
         this.repository = repository;
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     /**
@@ -51,7 +58,11 @@ public class OrderService {
      * @return lista de órdenes
      */
     public List<Order> getAll() {
-        return repository.findAll();
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            return repository.findAll();
+        }
+        Long currentUserId = authenticatedUserService.getCurrentUserId();
+        return repository.findAllByUserId(currentUserId);
     }
 
     /**
@@ -60,8 +71,12 @@ public class OrderService {
      * @return la orden encontrada
      * @throws OrderNotFoundException si no existe la orden
      */
-    public Order getById(Long id) throws OrderNotFoundException {
-        return repository.findById(id).orElseThrow(OrderNotFoundException::new);
+    public Order getById(@NonNull Long id) throws OrderNotFoundException {
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            return repository.findById(id).orElseThrow(OrderNotFoundException::new);
+        }
+        Long currentUserId = authenticatedUserService.getCurrentUserId();
+        return repository.findByIdAndUserId(id, currentUserId).orElseThrow(OrderNotFoundException::new);
     }
 
     /**
@@ -85,8 +100,10 @@ public class OrderService {
             throw new CartAlreadyOrderedException();
         }
 
-        // Validar que el carrito exista y tenga items
-        Cart cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
+        OwnershipContext ownershipContext = resolveOwnershipContext(order, cartId);
+        Cart cart = ownershipContext.cart();
+        User user = ownershipContext.user();
+
         if (cart.getItems() == null || cart.getItems().isEmpty()) {
             throw new IllegalArgumentException("No se puede crear una orden con un carrito vacío");
         }
@@ -103,10 +120,7 @@ public class OrderService {
 
         // Asociar la orden al carrito y usuario, y guardar la orden
         order.setCart(cart);
-        if (order.getUser() != null && order.getUser().getId() != null) {
-            User user = userRepository.findById(order.getUser().getId()).orElseThrow(UserNotFoundException::new);
-            order.setUser(user);
-        }
+        order.setUser(user);
         order.setDate(new Date());
         order.setStatus(OrderStatus.CREATED);
 
@@ -136,7 +150,7 @@ public class OrderService {
      * @throws OrderNotFoundException si la orden no existe
      * @throws InvalidOrderStatusException si la transición no es válida
      */
-    public Order updateStatus(Long id, OrderStatus newStatus) throws OrderNotFoundException, InvalidOrderStatusException {
+    public Order updateStatus(@NonNull Long id, OrderStatus newStatus) throws OrderNotFoundException, InvalidOrderStatusException {
         Order order = getById(id);
         if (!isValidTransition(order.getStatus(), newStatus)) {
             String nextAllowed = nextAllowedStatusMessage(order.getStatus());
@@ -183,7 +197,7 @@ public class OrderService {
      * @return lista de items de la orden
      * @throws OrderNotFoundException si la orden no existe
      */
-    public List<OrderItem> getOrderItems(Long id) throws OrderNotFoundException {
+    public List<OrderItem> getOrderItems(@NonNull Long id) throws OrderNotFoundException {
         Order order = getById(id);
         return order.getItems();
     }
@@ -193,8 +207,43 @@ public class OrderService {
      * @param id identificador de la orden
      * @throws OrderNotFoundException si la orden no existe
      */
-    public void delete(Long id) throws OrderNotFoundException {
-        if (!repository.existsById(id)) throw new OrderNotFoundException();
+    public void delete(@NonNull Long id) throws OrderNotFoundException {
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            if (!repository.existsById(id)) throw new OrderNotFoundException();
+            repository.deleteById(id);
+            return;
+        }
+
+        Long currentUserId = authenticatedUserService.getCurrentUserId();
+        if (!repository.existsByIdAndUserId(id, currentUserId)) throw new OrderNotFoundException();
         repository.deleteById(id);
+    }
+
+    private OwnershipContext resolveOwnershipContext(Order order, Long cartId)
+        throws CartNotFoundException, UserNotFoundException {
+        if (authenticatedUserService.isCurrentUserAdmin()) {
+            Cart cart = cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new);
+            User user = resolveUserForAdmin(order, cart);
+            return new OwnershipContext(cart, user);
+        }
+
+        User currentUser = authenticatedUserService.getCurrentUser();
+        Cart cart = cartRepository.findByIdAndUserId(cartId, currentUser.getId())
+            .orElseThrow(CartNotFoundException::new);
+        if (order.getUser() != null && order.getUser().getId() != null && !currentUser.getId().equals(order.getUser().getId())) {
+            throw new ForbiddenOperationException("No puede crear ordenes para otro usuario");
+        }
+        return new OwnershipContext(cart, currentUser);
+    }
+
+    private User resolveUserForAdmin(Order order, Cart cart) throws UserNotFoundException {
+        if (order.getUser() == null || order.getUser().getId() == null) {
+            return cart.getUser();
+        }
+        Long targetUserId = order.getUser().getId();
+        return userRepository.findById(targetUserId).orElseThrow(UserNotFoundException::new);
+    }
+
+    private record OwnershipContext(Cart cart, User user) {
     }
 }

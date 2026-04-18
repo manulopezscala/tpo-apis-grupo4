@@ -6,6 +6,7 @@ import com.uade.tpo.ecommerce.enums.CartStatus;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -33,7 +34,7 @@ public class Cart {
 
     // RELACIÓN CON CART ITEMS
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CartItem> items;
+    private List<CartItem> items = new ArrayList<>();
 
     // RELACIÓN CON ORDER
     @JsonIgnore
