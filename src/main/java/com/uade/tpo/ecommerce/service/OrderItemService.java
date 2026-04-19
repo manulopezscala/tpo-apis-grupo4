@@ -1,9 +1,12 @@
 package com.uade.tpo.ecommerce.service;
 
 import com.uade.tpo.ecommerce.entity.Discount;
+import com.uade.tpo.ecommerce.entity.Order;
 import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.entity.Product;
+import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
+import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
 import com.uade.tpo.ecommerce.repository.OrderRepository;
@@ -48,7 +51,7 @@ public class OrderItemService {
      * @throws OrderNotFoundException si la orden no existe
      * @throws ProductNotFoundException si el producto no existe
      */
-    public OrderItem create(OrderItem item) throws OrderNotFoundException, ProductNotFoundException {
+    public OrderItem create(OrderItem item) throws OrderNotFoundException, ProductNotFoundException, InvalidOrderStatusException {
         if (item.getOrder() == null || item.getOrder().getId() == null) {
             throw new IllegalArgumentException("Debe informar un order.id válido para crear el item de orden");
         }
@@ -59,13 +62,23 @@ public class OrderItemService {
         Long orderId = item.getOrder().getId();
         Long productId = item.getProduct().getId();
 
+        Order order;
         if (authenticatedUserService.isCurrentUserAdmin()) {
-            item.setOrder(orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new));
+            order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
         } else {
             Long currentUserId = authenticatedUserService.getCurrentUserId();
-            item.setOrder(orderRepository.findByIdAndUserId(orderId, currentUserId)
-                .orElseThrow(OrderNotFoundException::new));
+            order = orderRepository.findByIdAndUserId(orderId, currentUserId)
+                .orElseThrow(OrderNotFoundException::new);
         }
+
+        OrderStatus status = order.getStatus();
+        if (status != OrderStatus.CREATED && status != OrderStatus.PENDING) {
+            throw new InvalidOrderStatusException(
+                "Solo se pueden crear items para ordenes en estado CREATED o PENDING"
+            );
+        }
+
+        item.setOrder(order);
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         item.setProduct(product);
         item.setUnitPrice(calculateUnitPrice(product));

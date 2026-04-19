@@ -34,7 +34,8 @@ public class GlobalExceptionHandler {
         MissingPathVariableException.class,
         HttpMessageNotReadableException.class,
         MissingServletRequestParameterException.class,
-        IllegalArgumentException.class
+        IllegalArgumentException.class,
+        InvalidOrderStatusException.class
     })
     public ResponseEntity<CustomResponse> handleBadRequest(Exception ex, HttpServletRequest request) {
         if (ex instanceof MethodArgumentTypeMismatchException mismatch) {
