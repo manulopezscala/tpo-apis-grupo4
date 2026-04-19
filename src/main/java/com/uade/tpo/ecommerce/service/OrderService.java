@@ -152,8 +152,14 @@ public class OrderService {
      */
     public Order updateStatus(@NonNull Long id, OrderStatus newStatus) throws OrderNotFoundException, InvalidOrderStatusException {
         Order order = getById(id);
-        if (!isValidTransition(order.getStatus(), newStatus)) {
-            String nextAllowed = nextAllowedStatusMessage(order.getStatus());
+        OrderStatus currentStatus = order.getStatus();
+        if (!isValidTransition(currentStatus, newStatus)) {
+            if (isFinalStatus(currentStatus)) {
+                throw new InvalidOrderStatusException(
+                    "La orden ya se encuentra en un estado final (" + currentStatus + ") y no puede actualizarse."
+                );
+            }
+            String nextAllowed = nextAllowedStatusMessage(currentStatus);
             throw new InvalidOrderStatusException("La transición de estado de la orden no es válida. El siguiente estado permitido es: " + nextAllowed);
         }
         order.setStatus(newStatus);
@@ -189,6 +195,10 @@ public class OrderService {
             case SHIPPED -> "DELIVERED";
             default -> "-";
         };
+    }
+
+    private boolean isFinalStatus(OrderStatus status) {
+        return status == OrderStatus.DELIVERED || status == OrderStatus.CANCELLED;
     }
 
     /**
