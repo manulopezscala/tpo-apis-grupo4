@@ -37,6 +37,7 @@ public class Order {
     // RELACIÓN CON CART
     @OneToOne
     @JoinColumn(name = "cart_id", nullable = false, unique = true)
+    @JsonIgnoreProperties({"items", "order"})
     private Cart cart;
 
     // RELACIÓN CON ORDER ITEMS
