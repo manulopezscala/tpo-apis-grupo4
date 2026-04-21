@@ -5,6 +5,7 @@ import com.uade.tpo.ecommerce.entity.Order;
 import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
+import com.uade.tpo.ecommerce.exceptions.InsufficientStockException;
 import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
@@ -51,7 +52,7 @@ public class OrderItemService {
      * @throws OrderNotFoundException si la orden no existe
      * @throws ProductNotFoundException si el producto no existe
      */
-    public OrderItem create(OrderItem item) throws OrderNotFoundException, ProductNotFoundException, InvalidOrderStatusException {
+    public OrderItem create(OrderItem item) throws OrderNotFoundException, ProductNotFoundException, InvalidOrderStatusException, InsufficientStockException {
         if (item.getOrder() == null || item.getOrder().getId() == null) {
             throw new IllegalArgumentException("Debe informar un order.id válido para crear el item de orden");
         }
@@ -82,6 +83,13 @@ public class OrderItemService {
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         item.setProduct(product);
         item.setUnitPrice(calculateUnitPrice(product));
+
+        int available = product.getStock() != null ? product.getStock() : 0;
+        int quantity = item.getQuantity() != null ? item.getQuantity() : 0;
+        if (quantity > available) throw new InsufficientStockException();
+        product.setStock(available - quantity);
+        productRepository.save(product);
+
         return repository.save(item);
     }
 
@@ -111,16 +119,21 @@ public class OrderItemService {
      * @throws OrderItemNotFoundException si el ítem no existe
      */
     public void delete(@NonNull Long id) throws OrderItemNotFoundException {
+        OrderItem item;
         if (authenticatedUserService.isCurrentUserAdmin()) {
-            if (!repository.existsById(id)) throw new OrderItemNotFoundException();
-            repository.deleteById(id);
-            return;
+            item = repository.findById(id).orElseThrow(OrderItemNotFoundException::new);
+        } else {
+            Long currentUserId = authenticatedUserService.getCurrentUserId();
+            item = repository.findByIdAndOrderUserId(id, currentUserId)
+                .orElseThrow(OrderItemNotFoundException::new);
         }
 
-        Long currentUserId = authenticatedUserService.getCurrentUserId();
-        if (!repository.existsByIdAndOrderUserId(id, currentUserId)) {
-            throw new OrderItemNotFoundException();
+        Product product = item.getProduct();
+        if (product != null && product.getStock() != null && item.getQuantity() != null) {
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
         }
+
         repository.deleteById(id);
     }
 }

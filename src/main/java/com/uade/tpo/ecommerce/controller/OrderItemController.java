@@ -2,6 +2,7 @@ package com.uade.tpo.ecommerce.controller;
 
 import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
+import com.uade.tpo.ecommerce.exceptions.InsufficientStockException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
@@ -23,7 +24,7 @@ public class OrderItemController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderItem create(@RequestBody OrderItem item)
-            throws OrderNotFoundException, ProductNotFoundException, InvalidOrderStatusException {
+            throws OrderNotFoundException, ProductNotFoundException, InvalidOrderStatusException, InsufficientStockException {
         return service.create(item);
     }
 
