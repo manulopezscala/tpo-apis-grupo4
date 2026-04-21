@@ -162,10 +162,16 @@ public class CartService {
 
     /**
      * Elimina un carrito por su ID.
+     * Solo permite eliminar carritos en estado ACTIVE.
      * @param id identificador del carrito
      * @throws CartNotFoundException si el carrito no existe
+     * @throws InvalidCartStatusException si el carrito no está en estado ACTIVE
      */
-    public void delete(@NonNull Long id) throws CartNotFoundException {
+    public void delete(@NonNull Long id) throws CartNotFoundException, InvalidCartStatusException {
+        Cart cart = getById(id);
+
+        if (cart.getStatus() != CartStatus.ACTIVE) throw new InvalidCartStatusException();
+
         if (authenticatedUserService.isCurrentUserAdmin()) {
             if (!repository.existsById(id)) throw new CartNotFoundException();
             repository.deleteById(id);

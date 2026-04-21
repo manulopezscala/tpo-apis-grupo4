@@ -52,7 +52,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{id}")
-    public CustomResponse delete(@PathVariable Long id) throws CartNotFoundException {
+    public CustomResponse delete(@PathVariable Long id) throws CartNotFoundException, InvalidCartStatusException {
         service.delete(id);
         return new CustomResponse(true, "Carrito eliminado correctamente");
     }
