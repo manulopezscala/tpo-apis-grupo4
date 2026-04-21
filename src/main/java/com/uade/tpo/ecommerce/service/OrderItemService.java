@@ -6,6 +6,7 @@ import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.entity.Product;
 import com.uade.tpo.ecommerce.enums.OrderStatus;
 import com.uade.tpo.ecommerce.exceptions.InsufficientStockException;
+import com.uade.tpo.ecommerce.exceptions.MinOrderItemsException;
 import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
@@ -90,7 +91,11 @@ public class OrderItemService {
         product.setStock(available - quantity);
         productRepository.save(product);
 
-        return repository.save(item);
+        OrderItem saved = repository.save(item);
+        double itemTotal = saved.getUnitPrice() * saved.getQuantity();
+        order.setTotal((order.getTotal() != null ? order.getTotal() : 0.0) + itemTotal);
+        orderRepository.save(order);
+        return saved;
     }
 
     private Double calculateUnitPrice(Product product) {
@@ -118,7 +123,7 @@ public class OrderItemService {
      * @param id identificador del ítem
      * @throws OrderItemNotFoundException si el ítem no existe
      */
-    public void delete(@NonNull Long id) throws OrderItemNotFoundException {
+    public void delete(@NonNull Long id) throws OrderItemNotFoundException, MinOrderItemsException {
         OrderItem item;
         if (authenticatedUserService.isCurrentUserAdmin()) {
             item = repository.findById(id).orElseThrow(OrderItemNotFoundException::new);
@@ -127,6 +132,9 @@ public class OrderItemService {
             item = repository.findByIdAndOrderUserId(id, currentUserId).orElseThrow(OrderItemNotFoundException::new);
         }
 
+        Order order = item.getOrder();
+        if (order != null && order.getItems() != null && order.getItems().size() <= 1) throw new MinOrderItemsException();
+
         Product product = item.getProduct();
         if (product != null && product.getStock() != null && item.getQuantity() != null) {
             product.setStock(product.getStock() + item.getQuantity());
@@ -134,5 +142,10 @@ public class OrderItemService {
         }
 
         repository.deleteById(id);
+        if (order != null && item.getUnitPrice() != null && item.getQuantity() != null) {
+            double deduction = item.getUnitPrice() * item.getQuantity();
+            order.setTotal((order.getTotal() != null ? order.getTotal() : 0.0) - deduction);
+            orderRepository.save(order);
+        }
     }
 }

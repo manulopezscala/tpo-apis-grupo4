@@ -4,6 +4,7 @@ import com.uade.tpo.ecommerce.entity.OrderItem;
 import com.uade.tpo.ecommerce.entity.dto.CustomResponse;
 import com.uade.tpo.ecommerce.exceptions.InsufficientStockException;
 import com.uade.tpo.ecommerce.exceptions.InvalidOrderStatusException;
+import com.uade.tpo.ecommerce.exceptions.MinOrderItemsException;
 import com.uade.tpo.ecommerce.exceptions.OrderItemNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.OrderNotFoundException;
 import com.uade.tpo.ecommerce.exceptions.ProductNotFoundException;
@@ -29,7 +30,7 @@ public class OrderItemController {
     }
 
     @DeleteMapping("/{id}")
-    public CustomResponse delete(@PathVariable Long id) throws OrderItemNotFoundException {
+    public CustomResponse delete(@PathVariable Long id) throws OrderItemNotFoundException, MinOrderItemsException {
         service.delete(id);
         return new CustomResponse(true, "Item de la orden eliminado correctamente");
     }
