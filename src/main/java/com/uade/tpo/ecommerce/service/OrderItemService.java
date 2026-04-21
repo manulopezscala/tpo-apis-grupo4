@@ -124,8 +124,7 @@ public class OrderItemService {
             item = repository.findById(id).orElseThrow(OrderItemNotFoundException::new);
         } else {
             Long currentUserId = authenticatedUserService.getCurrentUserId();
-            item = repository.findByIdAndOrderUserId(id, currentUserId)
-                .orElseThrow(OrderItemNotFoundException::new);
+            item = repository.findByIdAndOrderUserId(id, currentUserId).orElseThrow(OrderItemNotFoundException::new);
         }
 
         Product product = item.getProduct();
