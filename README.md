@@ -141,24 +141,11 @@ Nota: las tablas se crean automáticamente al levantar la app (spring.jpa.hibern
 
 ## Colecciones API (Postman)
 
-### 1) Colección funcional general
+### Colección funcional general
 
 - doc/TPO Ecommerce - Grupo 4.postman_collection.json
 
 Incluye CRUD y flujo principal del sistema.
-
-### 2) Colección de autenticación y seguridad (entrega)
-
-- doc/TPO Ecommerce - Seguridad.postman_collection.json
-
-Incluye solicitudes para:
-
-- Login ADMIN
-- Crear USER de pruebas (con token ADMIN)
-- Login USER
-- Endpoint protegido con token válido (200)
-- Endpoint protegido sin token (401)
-- Endpoint protegido con rol insuficiente (403)
 
 ## Pasos mínimos para ejecutar localmente
 
