@@ -58,18 +58,18 @@ public class ProductService {
         return repository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
 
-        /**
-         * Crea un nuevo producto, validando unicidad y relaciones.
-         * @param product datos del producto
-         * @return el producto creado
-         * @throws ProductDuplicateException si ya existe un producto con ese nombre
-         * @throws UserNotFoundException si el vendedor no existe
-         * @throws CategoryNotFoundException si la categoría no existe
-         */
-        public Product create(Product product)
-            throws ProductDuplicateException, UserNotFoundException, CategoryNotFoundException {
-        if (repository.existsByNameIgnoreCase(product.getName()))
-            throw new ProductDuplicateException();
+    /**
+     * Crea un nuevo producto, validando unicidad y relaciones.
+     * @param product datos del producto
+     * @return el producto creado
+     * @throws ProductDuplicateException si ya existe un producto con ese nombre
+     * @throws UserNotFoundException si el vendedor no existe
+     * @throws CategoryNotFoundException si la categoría no existe
+     */
+    public Product create(Product product)
+        throws ProductDuplicateException, UserNotFoundException, CategoryNotFoundException {
+
+        if (repository.existsByNameIgnoreCase(product.getName())) throw new ProductDuplicateException();
 
         if (product.getSeller() == null || product.getSeller().getId() == null) {
             throw new IllegalArgumentException("Debe informar un seller.id válido para crear el producto");
@@ -85,17 +85,17 @@ public class ProductService {
         return repository.save(product);
     }
 
-        /**
-         * Actualiza un producto existente.
-         * @param id identificador del producto
-         * @param product datos actualizados
-         * @return el producto actualizado
-         * @throws ProductNotFoundException si el producto no existe
-         * @throws UserNotFoundException si el vendedor no existe
-         * @throws CategoryNotFoundException si la categoría no existe
-         */
-        public Product update(Long id, Product product)
-            throws ProductNotFoundException, UserNotFoundException, CategoryNotFoundException {
+    /**
+     * Actualiza un producto existente.
+     * @param id identificador del producto
+     * @param product datos actualizados
+     * @return el producto actualizado
+     * @throws ProductNotFoundException si el producto no existe
+     * @throws UserNotFoundException si el vendedor no existe
+     * @throws CategoryNotFoundException si la categoría no existe
+     */
+    public Product update(Long id, Product product)
+        throws ProductNotFoundException, UserNotFoundException, CategoryNotFoundException {
         if (!repository.existsById(id)) throw new ProductNotFoundException();
 
         if (product.getSeller() == null || product.getSeller().getId() == null) {

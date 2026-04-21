@@ -43,9 +43,7 @@ public class DiscountService {
         }
 
         Long productId = discount.getProduct().getId();
-        if (repository.existsByProductId(productId)) {
-            throw new DiscountDuplicateException();
-        }
+        if (repository.existsByProductId(productId)) throw new DiscountDuplicateException();
 
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         discount.setProduct(product);

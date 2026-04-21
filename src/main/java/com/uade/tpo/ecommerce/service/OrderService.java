@@ -37,6 +37,10 @@ public class OrderService {
     private final UserRepository userRepository;
     private final AuthenticatedUserService authenticatedUserService;
 
+    /* Contexto de ownership para resolución de carrito y usuario en creación de ordenes. */
+    private record OwnershipContext(Cart cart, User user) {
+    }
+
     /**
      * Constructor con inyección de dependencias.
      * @param repository repositorio de órdenes
@@ -58,9 +62,8 @@ public class OrderService {
      * @return lista de órdenes
      */
     public List<Order> getAll() {
-        if (authenticatedUserService.isCurrentUserAdmin()) {
-            return repository.findAll();
-        }
+        if (authenticatedUserService.isCurrentUserAdmin()) return repository.findAll();
+
         Long currentUserId = authenticatedUserService.getCurrentUserId();
         return repository.findAllByUserId(currentUserId);
     }
@@ -72,9 +75,8 @@ public class OrderService {
      * @throws OrderNotFoundException si no existe la orden
      */
     public Order getById(@NonNull Long id) throws OrderNotFoundException {
-        if (authenticatedUserService.isCurrentUserAdmin()) {
-            return repository.findById(id).orElseThrow(OrderNotFoundException::new);
-        }
+        if (authenticatedUserService.isCurrentUserAdmin()) return repository.findById(id).orElseThrow(OrderNotFoundException::new);
+
         Long currentUserId = authenticatedUserService.getCurrentUserId();
         return repository.findByIdAndUserId(id, currentUserId).orElseThrow(OrderNotFoundException::new);
     }
@@ -90,15 +92,11 @@ public class OrderService {
     @Transactional
     public Order create(Order order) throws CartNotFoundException, CartAlreadyOrderedException, UserNotFoundException {
         // Validaciones de existencia y estado del carrito
-        if (order.getCart() == null || order.getCart().getId() == null) {
-            throw new CartNotFoundException();
-        }
+        if (order.getCart() == null || order.getCart().getId() == null) throw new CartNotFoundException();
 
         // Verificar que el carrito no esté asociado a otra orden
         Long cartId = order.getCart().getId();
-        if (repository.existsByCartId(cartId)) {
-            throw new CartAlreadyOrderedException();
-        }
+        if (repository.existsByCartId(cartId)) throw new CartAlreadyOrderedException();
 
         OwnershipContext ownershipContext = resolveOwnershipContext(order, cartId);
         Cart cart = ownershipContext.cart();
@@ -197,6 +195,11 @@ public class OrderService {
         };
     }
 
+    /**
+     * Determina si un estado representa un estado final de la orden.
+     * @param status estado a evaluar
+     * @return true si el estado es DELIVERED o CANCELLED
+     */
     private boolean isFinalStatus(OrderStatus status) {
         return status == OrderStatus.DELIVERED || status == OrderStatus.CANCELLED;
     }
@@ -229,6 +232,14 @@ public class OrderService {
         repository.deleteById(id);
     }
 
+    /**
+     * Resuelve el carrito y usuario que deben asociarse a la orden segun el rol del autenticado.
+     * @param order orden solicitada
+     * @param cartId identificador del carrito a asociar
+     * @return contexto de ownership con carrito y usuario efectivos
+     * @throws CartNotFoundException si el carrito no existe o no pertenece al usuario autenticado
+     * @throws UserNotFoundException si el usuario objetivo no existe
+     */
     private OwnershipContext resolveOwnershipContext(Order order, Long cartId)
         throws CartNotFoundException, UserNotFoundException {
         if (authenticatedUserService.isCurrentUserAdmin()) {
@@ -246,14 +257,17 @@ public class OrderService {
         return new OwnershipContext(cart, currentUser);
     }
 
+    /**
+     * Resuelve el usuario final de la orden cuando la operacion es ejecutada por administrador.
+     * @param order orden recibida
+     * @param cart carrito asociado a la orden
+     * @return usuario destino de la orden
+     * @throws UserNotFoundException si se informa un usuario inexistente
+     */
     private User resolveUserForAdmin(Order order, Cart cart) throws UserNotFoundException {
-        if (order.getUser() == null || order.getUser().getId() == null) {
-            return cart.getUser();
-        }
+        if (order.getUser() == null || order.getUser().getId() == null) return cart.getUser();
+
         Long targetUserId = order.getUser().getId();
         return userRepository.findById(targetUserId).orElseThrow(UserNotFoundException::new);
-    }
-
-    private record OwnershipContext(Cart cart, User user) {
     }
 }

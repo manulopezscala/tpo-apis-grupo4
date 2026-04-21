@@ -62,8 +62,7 @@ public class UserService {
      * @throws RoleNotFoundException si el rol no existe
      */
     public User create(User user) throws UserDuplicateException, RoleNotFoundException {
-        if (repository.existsByUsername(user.getUsername()) || repository.existsByEmail(user.getEmail()))
-            throw new UserDuplicateException();
+        if (repository.existsByUsername(user.getUsername()) || repository.existsByEmail(user.getEmail())) throw new UserDuplicateException();
         if (user.getRole() == null || user.getRole().getId() == null) throw new RoleNotFoundException();
         Role role = roleRepository.findById(user.getRole().getId()).orElseThrow(RoleNotFoundException::new);
         user.setRole(role);

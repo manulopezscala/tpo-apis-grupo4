@@ -72,8 +72,7 @@ public class CartItemService {
             item.setCart(cartRepository.findById(cartId).orElseThrow(CartNotFoundException::new));
         } else {
             Long currentUserId = authenticatedUserService.getCurrentUserId();
-            item.setCart(cartRepository.findByIdAndUserId(cartId, currentUserId)
-                .orElseThrow(CartNotFoundException::new));
+            item.setCart(cartRepository.findByIdAndUserId(cartId, currentUserId).orElseThrow(CartNotFoundException::new));
         }
         Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
 
@@ -90,21 +89,20 @@ public class CartItemService {
         return repository.save(item);
     }
 
+    /**
+     * Calcula el precio unitario aplicando descuento activo del producto, si corresponde.
+     * @param product producto base para el calculo de precio
+     * @return precio unitario final
+     */
     private Double calculateUnitPrice(Product product) {
         Double basePrice = product.getPrice();
-        if (basePrice == null) {
-            throw new IllegalStateException("El producto no tiene precio configurado");
-        }
+        if (basePrice == null) throw new IllegalStateException("El producto no tiene precio configurado");
 
         Discount discount = product.getDiscount();
-        if (discount == null || !Boolean.TRUE.equals(discount.getActive())) {
-            return basePrice;
-        }
+        if (discount == null || !Boolean.TRUE.equals(discount.getActive())) return basePrice;
 
         Double percentage = discount.getPercentage();
-        if (percentage == null || percentage <= 0) {
-            return basePrice;
-        }
+        if (percentage == null || percentage <= 0) return basePrice;
 
         Double normalizedPercentage = Math.min(percentage, 100.0);
         return basePrice * (1 - (normalizedPercentage / 100.0));
@@ -120,9 +118,7 @@ public class CartItemService {
     public void delete(@NonNull Long id) throws CartItemNotFoundException, InvalidCartStatusException {
         if (authenticatedUserService.isCurrentUserAdmin()) {
             CartItem item = repository.findById(id).orElseThrow(CartItemNotFoundException::new);
-            if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) {
-                throw new InvalidCartStatusException();
-            }
+            if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) throw new InvalidCartStatusException();
 
             Product product = item.getProduct();
             if (product != null && product.getStock() != null && item.getQuantity() != null) {
@@ -135,11 +131,8 @@ public class CartItemService {
         }
 
         Long currentUserId = authenticatedUserService.getCurrentUserId();
-        CartItem item = repository.findByIdAndCartUserId(id, currentUserId)
-            .orElseThrow(CartItemNotFoundException::new);
-        if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) {
-            throw new InvalidCartStatusException();
-        }
+        CartItem item = repository.findByIdAndCartUserId(id, currentUserId).orElseThrow(CartItemNotFoundException::new);
+        if (item.getCart() == null || item.getCart().getStatus() != CartStatus.ACTIVE) throw new InvalidCartStatusException();
 
         Product product = item.getProduct();
         if (product != null && product.getStock() != null && item.getQuantity() != null) {

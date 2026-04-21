@@ -52,6 +52,8 @@ public class OrderItemService {
      * @return el ítem creado
      * @throws OrderNotFoundException si la orden no existe
      * @throws ProductNotFoundException si el producto no existe
+     * @throws InvalidOrderStatusException si la orden no está en estado editable
+     * @throws InsufficientStockException si no hay stock suficiente del producto
      */
     public OrderItem create(OrderItem item) throws OrderNotFoundException, ProductNotFoundException, InvalidOrderStatusException, InsufficientStockException {
         if (item.getOrder() == null || item.getOrder().getId() == null) {
@@ -69,8 +71,7 @@ public class OrderItemService {
             order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
         } else {
             Long currentUserId = authenticatedUserService.getCurrentUserId();
-            order = orderRepository.findByIdAndUserId(orderId, currentUserId)
-                .orElseThrow(OrderNotFoundException::new);
+            order = orderRepository.findByIdAndUserId(orderId, currentUserId).orElseThrow(OrderNotFoundException::new);
         }
 
         OrderStatus status = order.getStatus();
@@ -98,21 +99,20 @@ public class OrderItemService {
         return saved;
     }
 
+    /**
+     * Calcula el precio unitario aplicando descuento activo del producto, si corresponde.
+     * @param product producto base para el calculo de precio
+     * @return precio unitario final
+     */
     private Double calculateUnitPrice(Product product) {
         Double basePrice = product.getPrice();
-        if (basePrice == null) {
-            throw new IllegalStateException("El producto no tiene precio configurado");
-        }
+        if (basePrice == null) throw new IllegalStateException("El producto no tiene precio configurado");
 
         Discount discount = product.getDiscount();
-        if (discount == null || !Boolean.TRUE.equals(discount.getActive())) {
-            return basePrice;
-        }
+        if (discount == null || !Boolean.TRUE.equals(discount.getActive())) return basePrice;
 
         Double percentage = discount.getPercentage();
-        if (percentage == null || percentage <= 0) {
-            return basePrice;
-        }
+        if (percentage == null || percentage <= 0) return basePrice;
 
         Double normalizedPercentage = Math.min(percentage, 100.0);
         return basePrice * (1 - (normalizedPercentage / 100.0));
@@ -122,6 +122,7 @@ public class OrderItemService {
      * Elimina un ítem de orden por su ID.
      * @param id identificador del ítem
      * @throws OrderItemNotFoundException si el ítem no existe
+     * @throws MinOrderItemsException si la orden quedaría sin items
      */
     public void delete(@NonNull Long id) throws OrderItemNotFoundException, MinOrderItemsException {
         OrderItem item;

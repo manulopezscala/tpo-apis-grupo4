@@ -52,8 +52,7 @@ public class CategoryService {
      * @throws CategoryDuplicateException si ya existe una categoría con ese nombre
      */
     public Category create(Category category) throws CategoryDuplicateException {
-        if (repository.existsByNameIgnoreCase(category.getName()))
-            throw new CategoryDuplicateException();
+        if (repository.existsByNameIgnoreCase(category.getName())) throw new CategoryDuplicateException();
         return repository.save(category);
     }
 

@@ -58,9 +58,8 @@ public class CartService {
      * @return lista de carritos
      */
     public List<Cart> getAll() {
-        if (authenticatedUserService.isCurrentUserAdmin()) {
-            return repository.findAll();
-        }
+        if (authenticatedUserService.isCurrentUserAdmin()) return repository.findAll();
+
         Long currentUserId = authenticatedUserService.getCurrentUserId();
         return repository.findAllByUserId(currentUserId);
     }
@@ -72,9 +71,8 @@ public class CartService {
      * @throws CartNotFoundException si no existe el carrito
      */
     public Cart getById(@NonNull Long id) throws CartNotFoundException {
-        if (authenticatedUserService.isCurrentUserAdmin()) {
-            return repository.findById(id).orElseThrow(CartNotFoundException::new);
-        }
+        if (authenticatedUserService.isCurrentUserAdmin()) return repository.findById(id).orElseThrow(CartNotFoundException::new);
+
         Long currentUserId = authenticatedUserService.getCurrentUserId();
         return repository.findByIdAndUserId(id, currentUserId).orElseThrow(CartNotFoundException::new);
     }
@@ -101,14 +99,10 @@ public class CartService {
             }
         }
 
-        if (repository.findByUserIdAndStatus(user.getId(), CartStatus.ACTIVE).isPresent()) {
-            throw new ActiveCartAlreadyExistsException();
-        }
+        if (repository.findByUserIdAndStatus(user.getId(), CartStatus.ACTIVE).isPresent()) throw new ActiveCartAlreadyExistsException();
 
         cart.setUser(user);
-        if (cart.getItems() == null) {
-            cart.setItems(new ArrayList<>());
-        }
+        if (cart.getItems() == null) cart.setItems(new ArrayList<>());
         cart.setStatus(CartStatus.ACTIVE);
         return repository.save(cart);
     }
@@ -125,6 +119,7 @@ public class CartService {
     @Transactional
     public Cart checkout(@NonNull Long id) throws CartNotFoundException, InvalidCartStatusException, EmptyCartException, CartAlreadyOrderedException {
         Cart cart = getById(id);
+
         if (cart.getStatus() != CartStatus.ACTIVE) throw new InvalidCartStatusException();
         if (cart.getItems() == null || cart.getItems().isEmpty()) throw new EmptyCartException();
 
@@ -139,9 +134,7 @@ public class CartService {
             snapshotItems.add(orderItem);
         }
 
-        Double total = cart.getItems().stream()
-            .mapToDouble(item -> item.getUnitPrice() * item.getQuantity())
-            .sum();
+        Double total = cart.getItems().stream().mapToDouble(item -> item.getUnitPrice() * item.getQuantity()).sum();
 
         Order order = new Order();
         order.setCart(cart);
