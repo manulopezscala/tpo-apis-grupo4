@@ -139,7 +139,7 @@ public class CartService {
             snapshotItems.add(orderItem);
         }
 
-        double total = cart.getItems().stream()
+        Double total = cart.getItems().stream()
             .mapToDouble(item -> item.getUnitPrice() * item.getQuantity())
             .sum();
 

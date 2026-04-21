@@ -92,7 +92,7 @@ public class OrderItemService {
         productRepository.save(product);
 
         OrderItem saved = repository.save(item);
-        double itemTotal = saved.getUnitPrice() * saved.getQuantity();
+        Double itemTotal = saved.getUnitPrice() * saved.getQuantity();
         order.setTotal((order.getTotal() != null ? order.getTotal() : 0.0) + itemTotal);
         orderRepository.save(order);
         return saved;
@@ -143,7 +143,7 @@ public class OrderItemService {
 
         repository.deleteById(id);
         if (order != null && item.getUnitPrice() != null && item.getQuantity() != null) {
-            double deduction = item.getUnitPrice() * item.getQuantity();
+            Double deduction = item.getUnitPrice() * item.getQuantity();
             order.setTotal((order.getTotal() != null ? order.getTotal() : 0.0) - deduction);
             orderRepository.save(order);
         }
