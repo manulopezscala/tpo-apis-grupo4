@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "74d56690-0910-447c-a887-15ce4efdeb20",
+    "_postman_id": "03f65c62-c041-4d28-ad7e-5825afac4409",
     "name": "TPO Ecommerce - Grupo 4",
     "description": "Colección completa de endpoints para el TPO de APIs Interactivas - UADE 2026.\n\n**Flujo recomendado:**\n1. Crear usuario ADMIN\n2. Login → el token se guarda automáticamente\n3. Crear categoría, producto, cart, etc.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -24,7 +24,9 @@
                   "    console.log('Token guardado:', json.token);",
                   "}"
                 ],
-                "type": "text/javascript"
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
               }
             }
           ],
@@ -57,7 +59,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Endpoints de autenticación y generación de tokens JWT."
     },
     {
       "name": "Users",
@@ -137,7 +140,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"seller\",\n  \"email\": \"selleradmin@example.com\",\n  \"password\": \"seller123\",\n  \"firstName\": \"Seller\",\n  \"lastName\": \"User\",\n  \"role\": {\n    \"id\": 2\n  }\n}",
+              "raw": "{\n  \"username\": \"seller\",\n  \"email\": \"seller@example.com\",\n  \"password\": \"seller123\",\n  \"firstName\": \"Seller\",\n  \"lastName\": \"User\",\n  \"role\": {\n    \"id\": 2\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -221,7 +224,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de usuarios, roles y permisos. Solo ADMIN puede crear, actualizar y eliminar usuarios."
     },
     {
       "name": "Categories",
@@ -327,7 +331,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de categorías de productos. Solo ADMIN puede crear y eliminar categorías."
     },
     {
       "name": "Products",
@@ -472,7 +477,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de productos: crear, listar, actualizar y eliminar. Solo ADMIN puede crear, actualizar y eliminar productos."
     },
     {
       "name": "Product Images",
@@ -535,7 +541,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de imágenes de productos. Solo ADMIN puede agregar y eliminar imágenes."
     },
     {
       "name": "Discounts",
@@ -598,7 +605,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de descuentos para productos. Solo ADMIN puede crear y eliminar descuentos. Un producto solo puede tener un descuento activo."
     },
     {
       "name": "Carts",
@@ -618,7 +626,7 @@
                 "carts"
               ]
             },
-            "description": "Lista todos los carritos en el sistema. Solo ADMIN puede acceder."
+            "description": "Lista todos los carritos en el sistema, dependiendo del tipo de usuario que consulta."
           },
           "response": []
         },
@@ -675,7 +683,7 @@
                 "carts"
               ]
             },
-            "description": "Crea un nuevo carrito para un usuario. El usuario puede tener múltiples carritos activos."
+            "description": "Crea un nuevo carrito para un usuario."
           },
           "response": []
         },
@@ -756,7 +764,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de carritos de compra. El checkout convierte el carrito en una orden."
     },
     {
       "name": "Cart Items",
@@ -774,7 +783,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"quantity\": 2,\n  \"unitPrice\": 1500.00,\n  \"cart\": {\n    \"id\": 1\n  },\n  \"product\": {\n    \"id\": 1\n  }\n}",
+              "raw": "{\n  \"quantity\": 2,\n  \"cart\": {\n    \"id\": 6\n  },\n  \"product\": {\n    \"id\": 1\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -819,7 +828,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de items dentro de carritos. Permite agregar y eliminar productos de un carrito."
     },
     {
       "name": "Orders",
@@ -896,7 +906,7 @@
                 "orders"
               ]
             },
-            "description": "Crea una orden a partir de un carrito previamente cerrado con checkout."
+            "description": "Crea una orden a partir de un carrito previamente cerrado con checkout. Solo ADMIN."
           },
           "response": []
         },
@@ -936,7 +946,7 @@
                 }
               ]
             },
-            "description": "Solo ADMIN puede cambiar el estado. Enviar en el body: { \"status\": \"CONFIRMED\" }. Valores posibles: CREATED, PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
+            "description": "Solo ADMIN puede cambiar el estado. Valores posibles: CREATED, PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED."
           },
           "response": []
         },
@@ -991,7 +1001,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de órdenes de compra. Las órdenes se crean desde carritos cerrados. Solo ADMIN puede cambiar estado y eliminar órdenes."
     },
     {
       "name": "Order Items",
@@ -1009,7 +1020,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"quantity\": 2,\n  \"unitPrice\": 1500.00,\n  \"order\": {\n    \"id\": 1\n  },\n  \"product\": {\n    \"id\": 1\n  }\n}",
+              "raw": "{\n  \"quantity\": 2,\n  \"order\": {\n    \"id\": 1\n  },\n  \"product\": {\n    \"id\": 1\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1054,7 +1065,8 @@
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Gestión de items dentro de órdenes. Permite crear y eliminar productos de una orden después de su creación."
     }
   ],
   "auth": {
@@ -1070,13 +1082,11 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:4002",
-      "type": "string"
+      "value": "http://localhost:4002"
     },
     {
       "key": "token",
-      "value": "",
-      "type": "string"
+      "value": ""
     }
   ]
 }
