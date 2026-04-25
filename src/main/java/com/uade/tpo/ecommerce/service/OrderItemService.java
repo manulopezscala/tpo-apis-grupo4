@@ -124,25 +124,41 @@ public class OrderItemService {
      * @throws OrderItemNotFoundException si el ítem no existe
      * @throws MinOrderItemsException si la orden quedaría sin items
      */
+
+
     public void delete(@NonNull Long id) throws OrderItemNotFoundException, MinOrderItemsException {
+
         OrderItem item;
         if (authenticatedUserService.isCurrentUserAdmin()) {
             item = repository.findById(id).orElseThrow(OrderItemNotFoundException::new);
         } else {
             Long currentUserId = authenticatedUserService.getCurrentUserId();
-            item = repository.findByIdAndOrderUserId(id, currentUserId).orElseThrow(OrderItemNotFoundException::new);
+            item = repository.findByIdAndOrderUserId(id, currentUserId)
+                    .orElseThrow(OrderItemNotFoundException::new);
         }
 
         Order order = item.getOrder();
-        if (order != null && order.getItems() != null && order.getItems().size() <= 1) throw new MinOrderItemsException();
+
+        if (order != null && order.getItems() != null && order.getItems().size() <= 1) {
+            throw new MinOrderItemsException();
+        }
 
         Product product = item.getProduct();
+
         if (product != null && product.getStock() != null && item.getQuantity() != null) {
             product.setStock(product.getStock() + item.getQuantity());
             productRepository.save(product);
         }
 
-        repository.deleteById(id);
+        if (order != null && order.getItems() != null) {
+            order.getItems().remove(item);
+        }
+        item.setOrder(null);
+
+
+        repository.delete(item);
+
+
         if (order != null && item.getUnitPrice() != null && item.getQuantity() != null) {
             Double deduction = item.getUnitPrice() * item.getQuantity();
             order.setTotal((order.getTotal() != null ? order.getTotal() : 0.0) - deduction);
