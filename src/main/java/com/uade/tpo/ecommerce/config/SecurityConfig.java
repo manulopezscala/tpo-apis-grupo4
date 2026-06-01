@@ -47,6 +47,7 @@ public class SecurityConfig {
             )
             // Definimos las reglas de autorización para los endpoints de la API según los roles de usuario
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/products/**", "/categories/**").hasAnyRole(RoleName.USER.name(), RoleName.ADMIN.name())
                 .requestMatchers(HttpMethod.POST, "/products/**", "/categories/**", "/discounts/**", "/product-images/**").hasRole(RoleName.ADMIN.name())
