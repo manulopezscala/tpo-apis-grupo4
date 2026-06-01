@@ -11,15 +11,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Maneja de forma centralizada las excepciones de la API y devuelve
  * respuestas de error consistentes para el cliente.
  */
-@RestControllerAdvice
+// TODO: Re-enable @ControllerAdvice after fixing springdoc-openapi compatibility
+// @ControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
